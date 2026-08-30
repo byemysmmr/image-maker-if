@@ -215,7 +215,11 @@
   .p-sp{grid-column:1 / -1;}
   .p-nm{grid-column:1;text-align:var(--name-align,left);font-weight:var(--name-weight,700);
     color:var(--name-color,#1a1a1a);white-space:nowrap;}
-  .p-ln{grid-column:2;white-space:pre-wrap;overflow-wrap:break-word;word-break:var(--wb,keep-all);
+  /* 대사와 번역을 한 덩어리로 묶는다. 인용선이 두 줄에 걸쳐 끊기지 않게 하려는 것 */
+  .p-blk{grid-column:2;}
+  .p-blk.q-left{padding-left:var(--q-gap,14px)!important;}
+  .p-blk.q-right{padding-right:var(--q-gap,14px)!important;}
+  .p-ln{white-space:pre-wrap;overflow-wrap:break-word;word-break:var(--wb,keep-all);
     text-align:var(--align,left);}
   .p-tr{color:var(--tr-color,#666666);}
 
@@ -364,6 +368,41 @@
         <span class="sw__t"><b>정렬선 보기</b><span>대사 시작 위치를 표시합니다. 저장 이미지에는 안 나옵니다.</span></span>
         <input type="checkbox" id="guide">
       </label>
+
+      <!-- ============ 인용선 ============ -->
+      <p class="sec">인용선</p>
+      <div class="fld">
+        <div class="lab">위치</div>
+        <div class="seg" id="segQuote">
+          <button type="button" data-v="none" aria-pressed="true">없음</button>
+          <button type="button" data-v="left" aria-pressed="false">왼쪽</button>
+          <button type="button" data-v="right" aria-pressed="false">오른쪽</button><i></i>
+        </div>
+      </div>
+      <div id="quoteOpts" style="display:none">
+        <div class="row" style="margin-top:14px">
+          <div class="fld">
+            <div class="lab">두께</div>
+            <div class="step" data-for="quoteW"><b>−</b><span class="n"></span><input type="range" id="quoteW" min="1" max="16" step="1" value="3"><b>+</b></div>
+          </div>
+          <div class="fld">
+            <div class="lab">선 ↔ 글</div>
+            <div class="step" data-for="quoteGap"><b>−</b><span class="n"></span><input type="range" id="quoteGap" min="0" max="60" step="1" value="14"><b>+</b></div>
+          </div>
+        </div>
+        <div class="fld" style="margin-top:14px">
+          <div class="lab">선 색</div>
+          <div class="c__box">
+            <input type="color" id="cQuote" value="#c8cfc0">
+            <input class="c__hex" type="text" id="cQuoteT" value="#c8cfc0">
+          </div>
+        </div>
+        <label class="sw" style="margin-top:12px">
+          <span class="sw__t"><b>인물 색으로</b><span>등록한 인물의 대사에는 그 인물 색으로 선을 긋습니다.</span></span>
+          <input type="checkbox" id="quoteChar">
+        </label>
+        <p class="hint">선은 대사와 번역을 한 덩어리로 감쌉니다. 지문에는 붙지 않습니다.</p>
+      </div>
 
       <!-- ============ 지문 ============ -->
       <p class="sec">지문</p>
@@ -565,7 +604,7 @@ var paper=$('paper'), src=$('src'), stage=$('stage'), stageIn=$('stageIn');
 
 /* ===================== 세그먼트 ===================== */
 var segs={ segNameCol:'auto', segNameAlign:'left', segNameWeight:'700', segAlign:'left', segWb:'keep-all',
-           segDirInd:'none', segFit:'auto', segRatio:'4:5', segScale:'2' };
+           segDirInd:'none', segQuote:'none', segFit:'auto', segRatio:'4:5', segScale:'2' };
 function thumb(seg){
   if(seg.classList.contains('seg--wrap')) return;
   var i=seg.querySelector('i'), on=seg.querySelector('button[aria-pressed="true"]');
@@ -580,6 +619,7 @@ function segVis(){
   $('fldNameW').style.display=(segs.segNameCol==='fix')?'':'none';
   $('fldRatio').style.display=(segs.segFit==='ratio')?'':'none';
   $('fldDirInd').style.display=(segs.segDirInd==='first'||segs.segDirInd==='all')?'':'none';
+  $('quoteOpts').style.display=(segs.segQuote==='none')?'none':'';
 }
 Object.keys(segs).forEach(function(id){
   var seg=$(id); if(!seg) return;
@@ -598,10 +638,10 @@ if(window.ResizeObserver){
 }
 
 /* ===================== 스테퍼 ===================== */
-var STEP_IDS=['size','ls','lh','stretch','rowGap','sayGap','dirGap','paraGap','colGap','nameW','dirInd',
+var STEP_IDS=['size','ls','lh','stretch','rowGap','sayGap','dirGap','paraGap','colGap','nameW','dirInd','quoteW','quoteGap',
               'pw','padX','padY','ts','tg'];
 var UNITS={size:'px',ls:'',lh:'',stretch:'%',rowGap:'px',sayGap:'px',dirGap:'px',paraGap:'px',
-           colGap:'px',nameW:'',dirInd:'px',pw:'px',padX:'px',padY:'px',ts:'px',tg:'px'};
+           colGap:'px',nameW:'',dirInd:'px',quoteW:'px',quoteGap:'px',pw:'px',padX:'px',padY:'px',ts:'px',tg:'px'};
 function shown(id){
   var v=parseFloat($(id).value);
   if(id==='lh') return (v/10).toFixed(1);
@@ -707,6 +747,7 @@ function swatches(){
   linkColor('cHl'+i,'cHl'+i+'T',swatches);
   linkColor('cEm'+i,'cEm'+i+'T',swatches);
 });
+linkColor('cQuote','cQuoteT');
 linkColor('chColor','chColorT');
 
 /* ===================== 서식 툴바 ===================== */
@@ -789,6 +830,7 @@ $('chSave').addEventListener('click', function(){
 $('chName').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); $('chSave').click(); } });
 $('chAbbr').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); $('chSave').click(); } });
 $('charTint').addEventListener('change', function(){ render(); save(); });
+$('quoteChar').addEventListener('change', function(){ render(); save(); });
 
 /* ===================== 파싱 ===================== */
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -830,20 +872,42 @@ function build(){
   var dirCls=(segs.segDirInd==='col')?' col':'';
   var rowGap=+$('rowGap').value, sayGap=+$('sayGap').value,
       dirGap=+$('dirGap').value, paraGap=+$('paraGap').value;
+  var qPos=segs.segQuote, qW=+$('quoteW').value, qBase=$('cQuote').value, qChar=$('quoteChar').checked;
   function sp(h){ return h>0 ? '<div class="p-sp" style="height:'+h+'px"></div>' : ''; }
-  var prev=null;
+
+  // 이름 있는 대사로 시작해, 이름 없는 줄(번역·이어지는 줄)까지 한 묶음으로 만든다
+  var blocks=[], cur=null;
   rows.forEach(function(r){
-    if(r.t==='gap'){ html+=sp(paraGap); prev='gap'; return; }
+    if(r.t==='gap' || r.t==='dir'){ cur=null; blocks.push({k:r.t, r:r}); return; }
+    if(r.name || !cur){ cur={k:'say', name:r.name, color:r.color, lines:[r]}; blocks.push(cur); return; }
+    cur.lines.push(r);
+  });
+
+  var prev=null;
+  blocks.forEach(function(b){
+    if(b.k==='gap'){ html+=sp(paraGap); prev='gap'; return; }
     if(prev!==null && prev!=='gap'){
-      if(r.t==='dir' || prev==='dir') html+=sp(dirGap);
-      else if(r.name) html+=sp(sayGap);
-      else html+=sp(rowGap);
+      if(b.k==='dir' || prev==='dir') html+=sp(dirGap);
+      else html+=sp(sayGap);
     }
-    if(r.t==='dir'){ html+='<div class="p-dir'+dirCls+'">'+inline(r.text)+'</div>'; prev='dir'; return; }
-    var ns=r.color?' style="color:'+r.color+'"':'';
-    var ls=(tint&&r.color&&!r.tr)?' style="color:'+r.color+'"':'';
-    html+='<div class="p-nm"'+ns+'>'+esc(r.name)+'</div>';
-    html+='<div class="p-ln'+(r.tr?' p-tr':'')+'"'+ls+'>'+inline(r.text)+'</div>';
+    if(b.k==='dir'){ html+='<div class="p-dir'+dirCls+'">'+inline(b.r.text)+'</div>'; prev='dir'; return; }
+
+    var ns=b.color?' style="color:'+b.color+'"':'';
+    html+='<div class="p-nm"'+ns+'>'+esc(b.name)+'</div>';
+
+    var cls='p-blk', st='';
+    if(qPos!=='none'){
+      cls+=' q-'+qPos;
+      st=' style="border-'+qPos+':'+qW+'px solid '+((qChar&&b.color)?b.color:qBase)+'"';
+    }
+    html+='<div class="'+cls+'"'+st+'>';
+    b.lines.forEach(function(l,i){
+      var s=[];
+      if(i) s.push('margin-top:'+rowGap+'px');
+      if(tint && l.color && !l.tr) s.push('color:'+l.color);
+      html+='<div class="p-ln'+(l.tr?' p-tr':'')+'"'+(s.length?' style="'+s.join(';')+'"':'')+'>'+inline(l.text)+'</div>';
+    });
+    html+='</div>';
     prev='say';
   });
   return html;
@@ -885,6 +949,7 @@ function render(){
   s.setProperty('--title-gap', (+$('tg').value)+'px');
   s.setProperty('--title-font', font);
   s.setProperty('--wb', segs.segWb);
+  s.setProperty('--q-gap', (+$('quoteGap').value)+'px');
   [1,2,3].forEach(function(i){
     s.setProperty('--hl'+i, $('cHl'+i).value);
     s.setProperty('--em'+i, $('cEm'+i).value);
@@ -1020,7 +1085,7 @@ $('copy').addEventListener('click', function(){
 /* ===================== 설정 저장 · 프리셋 ===================== */
 var KEY='logmaker-v4', PRE_KEY='geuk-presets-v3';
 var IDS=['title','font','size','ls','lh','stretch','rowGap','sayGap','dirGap','paraGap','colGap','nameW',
-         'dirInd','pw','padX','padY','ts','tg',
+         'dirInd','quoteW','quoteGap','pw','padX','padY','ts','tg','cQuote','cQuoteT',
          'cBg','cBgT','cFg','cFgT','cName','cNameT','cTr','cTrT','cDir','cDirT','cTitle','cTitleT',
          'cHl1','cHl1T','cHl2','cHl2T','cHl3','cHl3T','cEm1','cEm1T','cEm2','cEm2T','cEm3','cEm3T'];
 var PRE_IDS=IDS.filter(function(x){ return x!=='title'; });
@@ -1029,7 +1094,7 @@ var loading=false;
 function grab(ids){
   var v={}; ids.forEach(function(id){ var e=$(id); if(e) v[id]=e.value; });
   return { v:v, segs:JSON.parse(JSON.stringify(segs)),
-           guide:$('guide').checked, charTint:$('charTint').checked };
+           guide:$('guide').checked, charTint:$('charTint').checked, quoteChar:$('quoteChar').checked };
 }
 function apply(d, ids){
   loading=true;
@@ -1038,6 +1103,7 @@ function apply(d, ids){
     if(d.segs) Object.keys(segs).forEach(function(k){ if(d.segs[k]) segs[k]=d.segs[k]; });
     if(typeof d.guide==='boolean') $('guide').checked=d.guide;
     if(typeof d.charTint==='boolean') $('charTint').checked=d.charTint;
+    if(typeof d.quoteChar==='boolean') $('quoteChar').checked=d.quoteChar;
     Object.keys(segs).forEach(function(id){
       var seg=$(id); if(!seg) return;
       seg.querySelectorAll('button').forEach(function(b){
