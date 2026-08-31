@@ -94,9 +94,12 @@
 
   /* 서식 툴바 — 클래스 이름을 스위치(.sw)와 완전히 분리해 스타일이 새지 않게 한다.
      라벨 없이 색만 보여 한 줄에 담는다. 이름은 커서를 올리면 뜬다 */
-  .tools{display:flex;align-items:center;gap:5px;margin-top:8px;flex-wrap:wrap;}
-  .tools__div{flex:none;width:1px;height:18px;background:var(--line);margin:0 4px;}
-  .tool{width:34px;height:32px;flex:none;padding:0;border:1px solid var(--line);background:var(--panel);
+  /* 한 줄 유지 — 좁아지면 줄바꿈 대신 가로로 밀린다 */
+  .tools{display:flex;align-items:center;gap:3px;margin-top:8px;flex-wrap:nowrap;
+    overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .tools::-webkit-scrollbar{display:none;}
+  .tools__div{flex:none;width:1px;height:16px;background:var(--line);margin:0 2px;}
+  .tool{width:28px;height:30px;flex:none;padding:0;border:1px solid var(--line);background:var(--panel);
     color:var(--ink);cursor:pointer;border-radius:var(--r-sm);font-size:12.5px;line-height:1;
     display:grid;place-items:center;
     transition:background .14s var(--ease),border-color .14s,transform .1s;}
