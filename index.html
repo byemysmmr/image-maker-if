@@ -216,7 +216,6 @@
     transition:border-color .14s var(--ease),transform .12s;}
   .chip:hover{border-color:var(--ink-2);transform:translateY(-1px);}
   .chip__dot{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);}
-  .chip__ab{font-weight:400;color:var(--ink-3);font-size:11px;}
   .chip__x{width:18px;height:18px;border-radius:50%;background:var(--panel-3);color:var(--ink-3);
     display:grid;place-items:center;font-size:13px;line-height:1;flex:none;transition:background .14s,color .14s;}
   .chip__x:hover{background:var(--danger);color:#fff;}
@@ -300,17 +299,16 @@
   <section class="edit">
     <div class="head">
       <span class="head__mark">로그 발췌기</span>
-      <span class="head__sub">이름과 대사를 줄 맞춰 조판합니다</span>
     </div>
 
     <div class="writing">
       <div class="lab">내용 <span class="v" id="charCount"></span></div>
-      <textarea id="src" spellcheck="false" translate="no" placeholder="이름 | 대사&#10;(괄호)&#10;&#10;빈 줄 뒤에 이름 없이 적으면 지문이 됩니다."></textarea>
+      <textarea id="src" spellcheck="false" translate="no" placeholder="이름 | 대사&#10;(괄호)"></textarea>
       <div class="tools">
         <button class="tool" type="button" data-w="**" title="굵게"><b>B</b></button>
         <button class="tool" type="button" data-w="//" title="기울임"><i>I</i></button>
         <button class="tool" type="button" data-w="__" title="밑줄"><u>U</u></button>
-        <button class="tool" type="button" id="btnQuote" title="인용선 (고른 줄에 걸기 · 다시 누르면 해제)"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3.5 3.5v13" stroke-width="2.6"/><path d="M8 6h9M8 10h9M8 14h6"/></svg></button>
+        <button class="tool" type="button" id="btnQuote" title="인용선"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3.5 3.5v13" stroke-width="2.6"/><path d="M8 6h9M8 10h9M8 14h6"/></svg></button>
         <span class="tools__div"></span>
         <button class="tool" type="button" data-w="==" title="형광펜 1"><span class="tool__bar" id="tb1"></span></button>
         <button class="tool" type="button" data-w="~~" title="형광펜 2"><span class="tool__bar" id="tb2"></span></button>
@@ -323,15 +321,14 @@
         <button class="tool" type="button" id="btnClear" title="서식 지우기"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 15.5H16"/><path d="M11.8 4.2 4.5 11.5a1.4 1.4 0 0 0 0 2l1.8 1.8h3.4l6.3-6.3a1.4 1.4 0 0 0 0-2l-2.2-2.8a1.4 1.4 0 0 0-2 0Z"/></svg></button>
       </div>
       <p class="hint">
-        글자를 드래그하면 그 자리에 서식 막대가 뜹니다. 아래 줄의 버튼을 눌러도 되고요. 네모는 형광펜, 동그라미는 강조색입니다.<br>
-        <code>이름 | 대사</code> 로 적으면 이름이 왼쪽 열에 붙습니다.<br>
-        이름표 없는 줄은 <b>지문</b>이 되어 폭 전체를 씁니다. 단 바로 위가 대사면 그 대사에 이어 붙고, 괄호로 시작하면 <b>번역</b> 색이 됩니다.
+        글자 드래그 시 서식 막대가 뜹니다 버튼 클릭도 ok!<br>
+        <code>이름 | 대사</code> 를 적으면 이름이 왼쪽 열에 붙고 이름 없는 줄은 지문 형식으로 폭 전체를 사용해요!
       </p>
     </div>
 
     <div class="scroll">
       <div class="fld">
-        <div class="lab">제목 <span class="note">비워도 됩니다</span></div>
+        <div class="lab">제목</div>
         <input type="text" id="title" placeholder="장면 제목">
       </div>
 
@@ -339,18 +336,12 @@
       <details class="fold" id="fold0">
         <summary>인물<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
         <div class="fold__b">
-      <p class="empty" id="charEmpty">등록한 이름은 자동으로 색이 붙습니다. 줄임말을 정해두면 짧게 쳐도 전체 이름으로 펴집니다.</p>
+      <p class="empty" id="charEmpty">이름과 색상 등록이 가능합니다</p>
       <div class="chips" id="charList"></div>
       <div class="form" id="charForm" hidden>
-        <div class="row">
-          <div class="fld">
-            <div class="lab">이름</div>
-            <input type="text" id="chName" maxlength="24" placeholder="만약">
-          </div>
-          <div class="fld">
-            <div class="lab">줄임말 <span class="note">선택</span></div>
-            <input type="text" id="chAbbr" maxlength="12" placeholder="ㅁ">
-          </div>
+        <div class="fld">
+          <div class="lab">이름</div>
+          <input type="text" id="chName" maxlength="24" placeholder="만약">
         </div>
         <div class="fld" style="margin-top:12px">
           <div class="lab">색</div>
@@ -367,7 +358,7 @@
       </div>
       <button class="act act--sub btn-full" id="chAdd" type="button">＋ 인물 추가</button>
       <label class="sw" style="margin-top:12px">
-        <span class="sw__t"><b>대사에도 인물 색</b><span>이름뿐 아니라 대사 글자에도 같은 색을 씁니다.</span></span>
+        <span class="sw__t"><b>대사에도 인물 색</b></span>
         <input type="checkbox" id="charTint">
       </label>
         </div>
@@ -409,7 +400,7 @@
         </div>
       </div>
       <label class="sw" style="margin-top:14px">
-        <span class="sw__t"><b>정렬선 보기</b><span>대사 시작 위치를 표시합니다. 저장 이미지에는 안 나옵니다.</span></span>
+        <span class="sw__t"><b>정렬선 보기</b><span>편집창에서만 확인 가능하며 저장 이미지에선 뜨지 않습니다</span></span>
         <input type="checkbox" id="guide" checked>
       </label>
         </div>
@@ -443,21 +434,21 @@
           </div>
         </div>
         <div class="fld" style="margin-top:14px">
-          <div class="lab">글자색 <span class="note">직접 건 인용선 안쪽</span></div>
+          <div class="lab">글자색 <span class="note">&gt; 줄 안쪽</span></div>
           <div class="c__box">
             <input type="color" id="cQInk" value="#1a1a1a">
             <input class="c__hex" type="text" id="cQInkT" value="#1a1a1a">
           </div>
         </div>
         <label class="sw" style="margin-top:12px">
-          <span class="sw__t"><b>대사 묶음에도 자동으로</b><span>이름 | 대사 형식으로 적은 부분에 선을 함께 긋습니다.</span></span>
+          <span class="sw__t"><b>대사에도 자동으로</b></span>
           <input type="checkbox" id="quoteAuto">
         </label>
         <label class="sw" style="margin-top:10px">
-          <span class="sw__t"><b>인물 색으로</b><span>위 자동 인용선을 인물마다 그 인물 색으로 긋습니다.</span></span>
+          <span class="sw__t"><b>인물 색으로</b></span>
           <input type="checkbox" id="quoteChar">
         </label>
-        <p class="hint">줄을 골라 툴바의 인용선 버튼을 누르면 <code>&gt;</code> 가 붙습니다. 이어진 줄은 선 하나로 묶이고, 다시 누르면 풀립니다.</p>
+        <p class="hint">이어진 <code>&gt;</code> 줄은 선 하나로 묶입니다</p>
       </div>
         </div>
       </details>
@@ -550,7 +541,6 @@
           <div class="step" data-for="paraGap"><b>−</b><span class="n"></span><input type="range" id="paraGap" min="0" max="120" step="2" value="18"><b>+</b></div>
         </div>
       </div>
-      <p class="hint">대사 ↔ 번역은 이어지는 줄에도 쓰입니다. 빈 줄을 넣은 자리에는 다른 간격 대신 빈 줄 값만 들어갑니다.</p>
         </div>
       </details>
       <details class="fold" id="fold6">
@@ -625,7 +615,7 @@
       <details class="fold" id="fold8">
         <summary>프리셋<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
         <div class="fold__b">
-      <p class="empty" id="preEmpty">지금 설정을 통째로 저장해두고 나중에 불러옵니다. 내용과 인물은 저장되지 않습니다.</p>
+      <p class="empty" id="preEmpty">내용·인물 제외 설정만 저장</p>
       <div class="chips" id="preList"></div>
       <button class="act act--sub btn-full" id="preSave" type="button">＋ 현재 설정 저장</button>
       <div class="row" style="margin-top:8px">
@@ -635,10 +625,10 @@
         </div>
       </details>
       <details class="fold" id="fold9">
-        <summary>저장<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <summary>저장(해상도)<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
         <div class="fold__b">
       <div class="fld">
-        <div class="lab">해상도 <span class="note">클수록 선명하고 파일이 큽니다</span></div>
+        <div class="lab">해상도</div>
         <div class="seg" id="segScale">
           <button type="button" data-v="1" aria-pressed="false">1배</button>
           <button type="button" data-v="2" aria-pressed="true">2배</button>
@@ -929,7 +919,6 @@ function charByKey(k){
   var key=String(k).trim();
   for(var i=0;i<chars.length;i++){
     if(chars[i].name===key) return chars[i];
-    if(chars[i].abbr && chars[i].abbr===key) return chars[i];
   }
   return null;
 }
@@ -941,14 +930,13 @@ function renderChars(){
     var dot=document.createElement('span'); dot.className='chip__dot'; dot.style.background=c.color;
     var nm=document.createElement('span'); nm.textContent=c.name;
     chip.appendChild(dot); chip.appendChild(nm);
-    if(c.abbr){ var ab=document.createElement('span'); ab.className='chip__ab'; ab.textContent=c.abbr; chip.appendChild(ab); }
     var x=document.createElement('span'); x.className='chip__x'; x.textContent='×'; x.title='삭제';
     chip.appendChild(x);
     nm.addEventListener('click', function(){ openChar(i); });
     dot.addEventListener('click', function(){ openChar(i); });
     x.addEventListener('click', function(ev){
       ev.stopPropagation();
-      if(!confirm('"'+c.name+'"을(를) 삭제할까요?')) return;
+      if(!confirm('"'+c.name+'" 삭제할까요?')) return;
       chars.splice(i,1); saveChars(); renderChars(); render();
     });
     wrap.appendChild(chip);
@@ -956,8 +944,8 @@ function renderChars(){
 }
 function openChar(i){
   editingChar=(typeof i==='number')?i:null;
-  var c=(editingChar!==null)?chars[editingChar]:{name:'',abbr:'',color:'#2d4a3e'};
-  $('chName').value=c.name||''; $('chAbbr').value=c.abbr||'';
+  var c=(editingChar!==null)?chars[editingChar]:{name:'',color:'#2d4a3e'};
+  $('chName').value=c.name||'';
   $('chColor').value=c.color||'#2d4a3e'; $('chColorT').value=c.color||'#2d4a3e';
   $('chDel').style.display=(editingChar!==null)?'':'none';
   $('charForm').hidden=false; $('chAdd').hidden=true;
@@ -968,18 +956,17 @@ $('chAdd').addEventListener('click', function(){ openChar(null); });
 $('chCancel').addEventListener('click', closeChar);
 $('chDel').addEventListener('click', function(){
   if(editingChar===null) return;
-  if(!confirm('이 인물을 삭제할까요?')) return;
+  if(!confirm('삭제할까요?')) return;
   chars.splice(editingChar,1); saveChars(); renderChars(); closeChar(); render();
 });
 $('chSave').addEventListener('click', function(){
   var name=$('chName').value.trim();
   if(!name){ $('chName').focus(); return; }
-  var d={ name:name, abbr:$('chAbbr').value.trim(), color:$('chColor').value };
+  var d={ name:name, color:$('chColor').value };
   if(editingChar!==null) chars[editingChar]=d; else chars.push(d);
   saveChars(); renderChars(); closeChar(); render();
 });
 $('chName').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); $('chSave').click(); } });
-$('chAbbr').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); $('chSave').click(); } });
 $('charTint').addEventListener('change', function(){ render(); save(); });
 $('quoteChar').addEventListener('change', function(){ render(); save(); });
 $('quoteAuto').addEventListener('change', function(){ render(); save(); });
@@ -1171,7 +1158,7 @@ function render(){
     paper.classList.add('ratio');
     var over=sheet.scrollHeight-(h-padY*2);
     if(over>0){
-      warn.textContent='글이 종이보다 '+Math.ceil(over)+'px 깁니다. 세로 여백이나 글자 크기를 줄이거나 가로를 키워 주세요.';
+      warn.textContent='글이 '+Math.ceil(over)+'px 넘쳐요';
       warn.hidden=false;
     } else warn.hidden=true;
   } else {
@@ -1352,7 +1339,7 @@ function load(){
   return true;
 }
 function loadPresets(){ try{ var r=localStorage.getItem(PRE_KEY); return r?JSON.parse(r):[]; }catch(e){ return []; } }
-function savePresets(l){ try{ localStorage.setItem(PRE_KEY, JSON.stringify(l)); }catch(e){ alert('저장 공간이 부족합니다.'); } }
+function savePresets(l){ try{ localStorage.setItem(PRE_KEY, JSON.stringify(l)); }catch(e){ alert('저장 공간이 부족해요'); } }
 function renderPresets(){
   var wrap=$('preList'), list=loadPresets(); wrap.innerHTML='';
   $('preEmpty').style.display=list.length?'none':'';
@@ -1364,7 +1351,7 @@ function renderPresets(){
     nm.addEventListener('click', function(){ apply(p.data, PRE_IDS); render(); save(); });
     x.addEventListener('click', function(ev){
       ev.stopPropagation();
-      if(!confirm('"'+p.name+'" 프리셋을 삭제할까요?')) return;
+      if(!confirm('"'+p.name+'" 삭제할까요?')) return;
       var l=loadPresets(); l.splice(i,1); savePresets(l); renderPresets();
     });
     wrap.appendChild(chip);
@@ -1378,14 +1365,14 @@ $('preSave').addEventListener('click', function(){
   var d=grab(PRE_IDS);
   var at=-1; for(var i=0;i<list.length;i++){ if(list[i].name===name){ at=i; break; } }
   if(at>=0){
-    if(!confirm('"'+name+'" 이 이미 있습니다. 현재 설정으로 덮어쓸까요?')) return;
+    if(!confirm('"'+name+'" 덮어쓸까요?')) return;
     list[at].data=d;
   } else list.push({name:name, data:d});
   savePresets(list); renderPresets();
 });
 $('preExport').addEventListener('click', function(){
   var list=loadPresets();
-  if(!list.length){ alert('내보낼 프리셋이 없습니다.'); return; }
+  if(!list.length){ alert('저장된 프리셋이 없어요'); return; }
   var blob=new Blob([JSON.stringify({type:'geuk-preset', items:list})],{type:'application/json'});
   var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='로그발췌기-프리셋.json';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
@@ -1403,15 +1390,15 @@ $('preImport').addEventListener('click', function(){
         var cur=loadPresets();
         o.items.forEach(function(p){ if(p.name && p.data) cur.push(p); });
         savePresets(cur); renderPresets();
-        alert(o.items.length+'개를 가져왔습니다.');
-      }catch(e){ alert('올바른 프리셋 파일이 아닙니다.'); }
+        alert(o.items.length+'개 가져왔어요');
+      }catch(e){ alert('프리셋 파일이 아니에요'); }
     };
     rd.readAsText(f);
   });
   inp.click();
 });
 $('reset').addEventListener('click', function(){
-  if(!confirm('내용, 설정, 인물, 프리셋을 모두 지우고 처음 상태로 되돌릴까요?')) return;
+  if(!confirm('전부 지우고 처음 상태로 되돌릴까요?')) return;
   loading=true;
   try{ localStorage.removeItem(KEY); localStorage.removeItem(CHAR_KEY); localStorage.removeItem(PRE_KEY); }catch(e){}
   location.reload();
