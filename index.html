@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>로그 발췌기</title>
+<meta name="description" content="@aksdifr">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+  @font-face{font-family:'BookkMyungjo';font-weight:400;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/BookkMyungjo-Lt.woff2') format('woff2');}
+  @font-face{font-family:'BookkMyungjo';font-weight:700;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/BookkMyungjo-Bd.woff2') format('woff2');}
+
+  :root{
+    --ui:"Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --bg:#e9e9e6; --panel:#fdfdfc; --panel-2:#f4f4f1; --panel-3:#eaeae6;
+    --line:#dedeD9; --line-2:#c9c9c3;
+    --ink:#1b1b19; --ink-2:#66665f; --ink-3:#9a9a92;
+    --accent:#2d4a3e; --accent-soft:#e4ebe7; --on-accent:#fff;
+    --danger:#8f3b34;
+    --r:10px; --r-sm:7px;
+    --head-h:54px;
+    --ease:cubic-bezier(.2,.6,.35,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{
+    font-family:var(--ui);background:var(--bg);color:var(--ink);
+    line-height:1.5;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;
+    -webkit-text-size-adjust:100%;text-size-adjust:100%;overscroll-behavior-y:none;
+  }
+  button,input,select,textarea{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px;}
+  ::selection{background:var(--accent);color:#fff;}
+
+  .app{display:grid;grid-template-columns:minmax(400px,470px) 1fr;height:100dvh;overflow:hidden;}
+  .edit{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--panel);border-right:1px solid var(--line);}
+
+  .head{display:flex;align-items:center;gap:10px;height:var(--head-h);flex:none;padding:0 18px;border-bottom:1px solid var(--line);}
+  .head__mark{font-size:12px;font-weight:700;letter-spacing:.14em;}
+  .head__sub{font-size:11px;color:var(--ink-3);letter-spacing:0;}
+
+  .writing{flex:none;padding:14px 18px;border-bottom:1px solid var(--line);}
+
+  .scroll{flex:1;min-height:0;overflow-y:auto;padding:18px 18px 26px;-webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;}
+  .scroll::-webkit-scrollbar{width:9px;}
+  .scroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:99px;border:3px solid var(--panel);}
+
+  .bar{display:flex;gap:7px;flex:none;padding:10px 18px 12px;border-top:1px solid var(--line);background:var(--panel);}
+  .act{flex:1;height:40px;border-radius:var(--r-sm);cursor:pointer;font-size:12.5px;font-weight:600;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:transform .1s var(--ease),background .16s,border-color .16s,filter .16s;}
+  .act--go{background:var(--accent);color:var(--on-accent);border:1px solid var(--accent);}
+  .act--go:hover{filter:brightness(1.22);}
+  .act--sub{background:transparent;color:var(--ink);border:1px solid var(--line-2);}
+  .act--sub:hover{background:var(--panel-2);}
+  .act:active{transform:scale(.98);}
+  .act[disabled]{opacity:.5;pointer-events:none;}
+
+  .view{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg);}
+  .view__bar{display:flex;align-items:center;gap:10px;height:var(--head-h);padding:0 22px;flex:none;}
+  .view__meta{margin-left:auto;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;}
+  .view__scroll{flex:1;min-height:0;overflow:auto;display:flex;align-items:flex-start;justify-content:center;
+    padding:20px 30px 40px;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;}
+  .view__scroll::-webkit-scrollbar{width:10px;height:10px;}
+  .view__scroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:99px;border:3px solid var(--bg);}
+  #stage{width:100%;max-width:680px;overflow:hidden;}
+  #stageIn{transform-origin:top left;}
+
+  .lab{display:flex;align-items:baseline;gap:8px;font-size:11px;font-weight:600;color:var(--ink-3);
+    letter-spacing:.02em;margin:0 0 7px;min-height:14px;}
+  .lab .v{margin-left:auto;color:var(--ink);font-variant-numeric:tabular-nums;font-size:11.5px;}
+  .lab .note{font-weight:400;color:var(--ink-3);}
+
+  textarea,input[type=text],select{width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
+    border-radius:var(--r-sm);font-size:13px;letter-spacing:-.01em;
+    transition:border-color .16s var(--ease),background .16s,box-shadow .16s;}
+  input[type=text],select{height:38px;padding:0 12px;}
+  select{cursor:pointer;appearance:none;-webkit-appearance:none;padding-right:32px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%239a9a92' stroke-width='1.5'><path d='M4 6.5l4 4 4-4'/></svg>");
+    background-repeat:no-repeat;background-position:right 11px center;}
+  textarea{padding:12px;line-height:1.7;resize:vertical;font-size:13px;}
+  textarea:focus,input[type=text]:focus,select:focus{border-color:var(--accent);background:var(--panel);outline:none;box-shadow:0 0 0 3px var(--accent-soft);}
+  #src{height:180px;white-space:pre-wrap;overflow-wrap:break-word;overflow-x:hidden;}
+
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:start;}
+  .fld{display:flex;flex-direction:column;min-width:0;}
+  .fld + .fld{margin-top:14px;}
+  .row > .fld + .fld,.row3 > .fld + .fld{margin-top:0;}
+
+  /* 서식 툴바 — 클래스 이름을 스위치(.sw)와 완전히 분리해 스타일이 새지 않게 한다.
+     라벨 없이 색만 보여 한 줄에 담는다. 이름은 커서를 올리면 뜬다 */
+  /* 한 줄 유지 — 좁아지면 줄바꿈 대신 가로로 밀린다 */
+  .tools{display:flex;align-items:center;gap:3px;margin-top:8px;flex-wrap:nowrap;
+    overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .tools::-webkit-scrollbar{display:none;}
+  .tools__div{flex:none;width:1px;height:16px;background:var(--line);margin:0 2px;}
+  .tool{width:28px;height:30px;flex:none;padding:0;border:1px solid var(--line);background:var(--panel);
+    color:var(--ink);cursor:pointer;border-radius:var(--r-sm);font-size:12.5px;line-height:1;
+    display:grid;place-items:center;
+    transition:background .14s var(--ease),border-color .14s,transform .1s;}
+  .tool:hover{background:var(--panel-2);border-color:var(--line-2);}
+  .tool:active{transform:scale(.92);}
+  .tool__bar{display:block;width:18px;height:13px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);}
+  .tool__dot{display:block;width:13px;height:13px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);}
+
+  .step{display:flex;align-items:stretch;height:38px;overflow:hidden;border:1px solid var(--line);
+    border-radius:var(--r-sm);background:var(--panel-2);transition:border-color .14s var(--ease);}
+  .step:hover{border-color:var(--line-2);}
+  .step input[type=range]{display:none;}
+  .step b{position:relative;flex:none;width:31px;display:flex;align-items:center;justify-content:center;
+    border:none;background:transparent;color:var(--ink-2);cursor:pointer;font-size:15px;font-weight:700;
+    line-height:1;user-select:none;touch-action:manipulation;transition:background .14s var(--ease);}
+  .step b:first-child::after,.step b:last-child::before{content:"";position:absolute;top:7px;bottom:7px;width:1px;background:var(--line);}
+  .step b:first-child::after{right:0;} .step b:last-child::before{left:0;}
+  .step b:hover{background:var(--panel-3);}
+  .step b[disabled]{color:var(--line-2);cursor:default;background:transparent;}
+  .step .n{flex:1;min-width:0;line-height:36px;text-align:center;font-size:12.5px;
+    font-variant-numeric:tabular-nums;cursor:text;white-space:nowrap;overflow:hidden;}
+  .step input.ed{flex:1;min-width:0;width:100%;height:100%!important;padding:0!important;border:none!important;
+    border-radius:0!important;background:var(--panel)!important;text-align:center;font-size:12.5px!important;
+    font-variant-numeric:tabular-nums;}
+
+  /* 밑줄 탭 — 통도 움직이는 조각도 없이, 고른 것에만 밑줄이 그어진다 */
+  .seg{display:flex;flex-wrap:wrap;gap:0;position:relative;
+    background:none;border:none;border-bottom:1px solid var(--line);border-radius:0;
+    height:auto;padding:0;}
+  .seg button{flex:1 1 0;min-width:0;border:none;background:none;cursor:pointer;
+    padding:9px 4px 8px;margin-bottom:-1px;
+    font-size:12.5px;font-weight:600;color:var(--ink-3);letter-spacing:-.01em;
+    border-bottom:2px solid transparent;
+    transition:color .16s var(--ease),border-color .16s var(--ease);}
+  .seg button:hover{color:var(--ink-2);}
+  .seg button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent);}
+  .seg--wrap button{flex:0 0 33.333%;}
+  .seg--half button{flex:0 0 50%;}
+
+  .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;}
+  .cgrid--3{grid-template-columns:1fr 1fr 1fr;}
+  .c{min-width:0;}
+  .c>label{display:block;font-size:11px;font-weight:600;color:var(--ink-3);letter-spacing:.02em;
+    margin:0 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .c__box{display:flex;align-items:center;gap:8px;height:32px;min-width:0;}
+  .c input[type=color]{width:24px;height:24px;flex:none;padding:0;border-radius:50%;overflow:hidden;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel);-webkit-appearance:none;appearance:none;
+    box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .c input[type=color]::-webkit-color-swatch-wrapper{padding:0;}
+  .c input[type=color]::-webkit-color-swatch{border:none;border-radius:50%;}
+  .c input[type=color]::-moz-color-swatch{border:none;border-radius:50%;}
+  .c__hex{flex:1;min-width:0;height:auto;padding:0;border:none!important;background:transparent!important;
+    color:var(--ink-2);font-size:11px;font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    text-transform:uppercase;letter-spacing:0;border-radius:0;}
+  .c__hex:focus{box-shadow:none!important;color:var(--ink);}
+
+  .sw{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;transition:border-color .16s var(--ease);}
+  .sw:hover{border-color:var(--line-2);}
+  .sw>input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:42px;height:25px;margin:0;
+    border-radius:99px;background:var(--panel-3);border:1px solid var(--line);position:relative;cursor:pointer;
+    transition:background .2s var(--ease);}
+  .sw>input[type=checkbox]::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;
+    border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.28);transition:transform .2s var(--ease);}
+  .sw>input[type=checkbox]:checked{background:var(--accent);border-color:transparent;}
+  .sw>input[type=checkbox]:checked::after{transform:translateX(17px);}
+  .sw__t{display:flex;flex-direction:column;gap:2px;flex:1;}
+  .sw__t b{font-size:12.5px;font-weight:600;}
+  .sw__t span{font-size:11px;color:var(--ink-3);line-height:1.4;}
+
+  /* 접은글 — 메뉴가 길어 한눈에 안 들어오는 문제를 접어서 푼다 */
+  .fold{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:hidden;}
+  .fold + .fold{margin-top:8px;}
+  .fold>summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:center;gap:9px;
+    padding:12px 14px;font-size:12.5px;font-weight:600;color:var(--ink);
+    transition:background .15s var(--ease);}
+  .fold>summary::-webkit-details-marker{display:none;}
+  .fold>summary::marker{content:"";}
+  .fold>summary:hover{background:var(--panel-2);}
+  .fold[open]>summary{border-bottom:1px solid var(--line);}
+  .fold__c{margin-left:auto;width:15px;height:15px;flex:none;color:var(--ink-3);
+    transition:transform .22s var(--ease);}
+  .fold[open]>summary .fold__c{transform:rotate(180deg);}
+  .fold__b{padding:14px;}
+  /* 드래그하면 그 자리에 뜨는 서식 막대 */
+  .fbar{position:fixed;z-index:200;display:flex;align-items:center;gap:4px;padding:5px;
+    background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r-sm);
+    box-shadow:0 10px 28px -12px rgba(0,0,0,.35);
+    opacity:0;transform:translateY(5px) scale(.97);pointer-events:none;
+    transition:opacity .13s var(--ease),transform .13s var(--ease);}
+  .fbar.on{opacity:1;transform:none;pointer-events:auto;}
+  .fbar .tool{width:28px;height:27px;border-color:transparent;background:transparent;}
+  .fbar .tool:hover{background:var(--panel-3);border-color:transparent;}
+  .fbar .tools__div{margin:0 2px;height:16px;}
+  .fbar .tool__bar{width:16px;height:12px;}
+  .fbar .tool__dot{width:12px;height:12px;}
+
+  .foldbar{display:flex;justify-content:flex-end;margin:16px 0 8px;}
+  .mini{border:1px solid var(--line);background:var(--panel);color:var(--ink-3);border-radius:99px;
+    height:26px;padding:0 12px;font-size:11px;font-weight:600;cursor:pointer;
+    transition:background .14s var(--ease),color .14s,border-color .14s;}
+  .mini:hover{background:var(--panel-2);color:var(--ink);border-color:var(--line-2);}
+
+  .hint{font-size:11.5px;color:var(--ink-3);line-height:1.6;margin:10px 0 0;}
+  .hint code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;background:var(--panel-3);
+    padding:1px 5px;border-radius:4px;color:var(--ink-2);}
+  .warn{font-size:11.5px;line-height:1.6;margin:10px 0 0;color:var(--danger);}
+  .warn[hidden]{display:none;}
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chips:not(:empty){margin-bottom:10px;}
+  .chip{display:inline-flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:999px;padding:6px 8px 6px 13px;font-size:12px;font-weight:600;cursor:pointer;
+    transition:border-color .14s var(--ease),transform .12s;}
+  .chip:hover{border-color:var(--ink-2);transform:translateY(-1px);}
+  .chip__dot{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);}
+  .chip__x{width:18px;height:18px;border-radius:50%;background:var(--panel-3);color:var(--ink-3);
+    display:grid;place-items:center;font-size:13px;line-height:1;flex:none;transition:background .14s,color .14s;}
+  .chip__x:hover{background:var(--danger);color:#fff;}
+  .empty{font-size:11.5px;color:var(--ink-3);line-height:1.5;margin:0 0 10px;}
+
+  .form{border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel-2);padding:12px;margin-bottom:10px;}
+  .form[hidden]{display:none;}
+  .form__btns{display:flex;gap:7px;justify-content:flex-end;margin-top:12px;}
+  .form__btns .act{flex:none;height:34px;padding:0 16px;font-size:12px;}
+  .btn-full{width:100%;height:38px;font-size:12.5px;}
+
+  /* ===================== 종이 ===================== */
+  #paper{position:relative;background:#fff;box-shadow:0 20px 50px -28px rgba(0,0,0,.4);overflow:hidden;}
+  #paper *{margin:0;padding:0;}
+  #sheet{position:relative;z-index:1;}
+  #paper.ratio{display:flex;flex-direction:column;justify-content:center;}
+
+  .p-title{display:block;font-family:var(--title-font,inherit);font-size:var(--title-size,32px);
+    font-weight:700;color:var(--title-color,#1a1a1a);line-height:1.3;
+    margin-bottom:var(--title-gap,28px)!important;white-space:pre-wrap;overflow-wrap:break-word;}
+
+  /* 간격은 전부 스페이서로 넣는다. row-gap 을 0으로 둬야 지정한 값이 그대로 나온다 */
+  .p-script{display:grid;grid-template-columns:var(--name-col,max-content) 1fr;
+    column-gap:var(--col-gap,28px);row-gap:0;align-items:baseline;}
+  .p-sp{grid-column:1 / -1;}
+  .p-nm{grid-column:1;text-align:var(--name-align,left);font-weight:var(--name-weight,700);
+    color:var(--name-color,#1a1a1a);white-space:nowrap;}
+  /* 대사와 번역을 한 덩어리로 묶는다. 인용선이 두 줄에 걸쳐 끊기지 않게 하려는 것 */
+  .p-blk{grid-column:2;}
+  /* 직접 건 인용선 — 폭 전체를 쓰고 이름 칸에 매이지 않는다 */
+  .p-q{grid-column:1 / -1;}
+  .p-q.q-left{padding-left:var(--q-gap,14px)!important;}
+  .p-q.q-right{padding-right:var(--q-gap,14px)!important;}
+  .p-qln{white-space:pre-wrap;overflow-wrap:break-word;word-break:var(--wb,keep-all);
+    text-align:var(--align,left);color:var(--q-ink,#1a1a1a);}
+  .p-qln.p-tr{color:var(--tr-color,#666666);}
+  .p-blk.q-left{padding-left:var(--q-gap,14px)!important;}
+  .p-blk.q-right{padding-right:var(--q-gap,14px)!important;}
+  .p-ln{white-space:pre-wrap;overflow-wrap:break-word;word-break:var(--wb,keep-all);
+    text-align:var(--align,left);}
+  .p-tr{color:var(--tr-color,#666666);}
+
+  .p-dir{grid-column:1 / -1;white-space:pre-wrap;overflow-wrap:break-word;word-break:var(--wb,keep-all);
+    color:var(--dir-color,#1a1a1a);text-align:var(--align,left);
+    padding-left:var(--dir-pad,0)!important;text-indent:var(--dir-ti,0);}
+  .p-dir.col{grid-column:2;padding-left:0!important;}
+  .p-dir.p-tr{color:var(--tr-color,#666666);}
+
+  .p-b{font-weight:700;}
+  .p-i{font-style:italic;}
+  .p-u{text-decoration:underline;text-decoration-thickness:.05em;text-underline-offset:.15em;}
+  .p-hl1{background-color:var(--hl1);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
+  .p-hl2{background-color:var(--hl2);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
+  .p-hl3{background-color:var(--hl3);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
+  .p-em1{color:var(--em1);}
+  .p-em2{color:var(--em2);}
+  .p-em3{color:var(--em3);}
+
+  .p-guide{position:absolute;top:0;bottom:0;width:1px;background:var(--accent);opacity:.1;pointer-events:none;z-index:0;}
+  #paper.exporting .p-guide{display:none;}
+
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr;grid-template-rows:40dvh 1fr;}
+    .view{order:1;overflow:hidden;border-bottom:1px solid var(--line);}
+    .view__bar{height:auto;padding:10px 16px 4px;}
+    .view__scroll{padding:4px 16px 14px;}
+    #stage{max-width:none;}
+    .edit{order:2;border-right:none;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .head{position:sticky;top:0;z-index:20;background:var(--panel);}
+    .scroll{flex:none;overflow:visible;padding-bottom:84px;}
+    #src{height:140px;}
+    .bar{position:fixed;left:0;right:0;bottom:0;z-index:50;
+      padding:9px 14px calc(9px + env(safe-area-inset-bottom));box-shadow:0 -8px 22px -16px rgba(0,0,0,.25);}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <section class="edit">
+    <div class="head">
+      <span class="head__mark">로그 발췌기</span>
+    </div>
+
+    <div class="writing">
+      <div class="lab">내용 <span class="v" id="charCount"></span></div>
+      <textarea id="src" spellcheck="false" translate="no" placeholder="이름 | 대사&#10;(괄호)"></textarea>
+      <div class="tools">
+        <button class="tool" type="button" data-w="**" title="굵게"><b>B</b></button>
+        <button class="tool" type="button" data-w="//" title="기울임"><i>I</i></button>
+        <button class="tool" type="button" data-w="__" title="밑줄"><u>U</u></button>
+        <button class="tool" type="button" id="btnQuote" title="인용선"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3.5 3.5v13" stroke-width="2.6"/><path d="M8 6h9M8 10h9M8 14h6"/></svg></button>
+        <span class="tools__div"></span>
+        <button class="tool" type="button" data-w="==" title="형광펜 1"><span class="tool__bar" id="tb1"></span></button>
+        <button class="tool" type="button" data-w="~~" title="형광펜 2"><span class="tool__bar" id="tb2"></span></button>
+        <button class="tool" type="button" data-w="%%" title="형광펜 3"><span class="tool__bar" id="tb3"></span></button>
+        <span class="tools__div"></span>
+        <button class="tool" type="button" data-w="!!" title="강조색 1"><span class="tool__dot" id="td1"></span></button>
+        <button class="tool" type="button" data-w="@@" title="강조색 2"><span class="tool__dot" id="td2"></span></button>
+        <button class="tool" type="button" data-w="$$" title="강조색 3"><span class="tool__dot" id="td3"></span></button>
+        <span class="tools__div"></span>
+        <button class="tool" type="button" id="btnClear" title="서식 지우기"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 15.5H16"/><path d="M11.8 4.2 4.5 11.5a1.4 1.4 0 0 0 0 2l1.8 1.8h3.4l6.3-6.3a1.4 1.4 0 0 0 0-2l-2.2-2.8a1.4 1.4 0 0 0-2 0Z"/></svg></button>
+      </div>
+      <p class="hint">
+        글자 드래그 시 서식 막대가 뜹니다 버튼 클릭도 ok!<br>
+        <code>이름 | 대사</code> 를 적으면 이름이 왼쪽 열에 붙고 이름 없는 줄은 지문 형식으로 폭 전체를 사용해요!
+      </p>
+    </div>
+
+    <div class="scroll">
+      <div class="fld">
+        <div class="lab">제목</div>
+        <input type="text" id="title" placeholder="장면 제목">
+      </div>
+
+      <div class="foldbar"><button class="mini" id="foldAll" type="button">모두 접기</button></div>
+      <details class="fold" id="fold0">
+        <summary>인물<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="fold__b">
+      <p class="empty" id="charEmpty">이름과 색상 등록이 가능합니다</p>
+      <div class="chips" id="charList"></div>
+      <div class="form" id="charForm" hidden>
+        <div class="fld">
+          <div class="lab">이름</div>
+          <input type="text" id="chName" maxlength="24" placeholder="만약">
+        </div>
+        <div class="fld" style="margin-top:12px">
+          <div class="lab">색</div>
+          <div class="c__box">
+            <input type="color" id="chColor" value="#2d4a3e">
+            <input class="c__hex" type="text" id="chColorT" value="#2d4a3e">
+          </div>
+        </div>
+        <div class="form__btns">
+          <button class="act act--sub" id="chDel" type="button" style="color:var(--danger);border-color:var(--danger);margin-right:auto">삭제</button>
+          <button class="act act--sub" id="chCancel" type="button">취소</button>
+          <button class="act act--go" id="chSave" type="button">저장</button>
+        </div>
+      </div>
+      <button class="act act--sub btn-full" id="chAdd" type="button">＋ 인물 추가</button>
+      <label class="sw" style="margin-top:12px">
+        <span class="sw__t"><b>대사에도 인물 색</b></span>
+        <input type="checkbox" id="charTint">
+      </label>
+        </div>
+      </details>
+      <details class="fold" id="fold1">
+        <summary>이름 칸<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="fold__b">
+      <div class="fld">
+        <div class="lab">칸 너비</div>
+        <div class="seg" id="segNameCol">
+          <button type="button" data-v="auto" aria-pressed="true">가장 긴 이름에 맞춤</button>
+          <button type="button" data-v="fix" aria-pressed="false">직접 지정</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <div class="fld" id="fldNameW" style="display:none">
+          <div class="lab">너비</div>
+          <div class="step" data-for="nameW"><b>−</b><span class="n"></span><input type="range" id="nameW" min="2" max="20" step="0.5" value="7"><b>+</b></div>
+        </div>
+        <div class="fld">
+          <div class="lab">이름 ↔ 대사</div>
+          <div class="step" data-for="colGap"><b>−</b><span class="n"></span><input type="range" id="colGap" min="0" max="120" step="2" value="28"><b>+</b></div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <div class="fld">
+          <div class="lab">이름 정렬</div>
+          <div class="seg" id="segNameAlign">
+            <button type="button" data-v="left" aria-pressed="true">왼쪽</button>
+            <button type="button" data-v="right" aria-pressed="false">오른쪽</button>
+          </div>
+        </div>
+        <div class="fld">
+          <div class="lab">이름 굵기</div>
+          <div class="seg" id="segNameWeight">
+            <button type="button" data-v="400" aria-pressed="false">보통</button>
+            <button type="button" data-v="700" aria-pressed="true">굵게</button>
+          </div>
+        </div>
+      </div>
+      <label class="sw" style="margin-top:14px">
+        <span class="sw__t"><b>정렬선 보기</b><span>편집창에서만 확인 가능하며 저장 이미지에선 뜨지 않습니다</span></span>
+        <input type="checkbox" id="guide" checked>
+      </label>
+        </div>
+      </details>
+      <details class="fold" id="fold2">
+        <summary>인용선<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="fold__b">
+      <div class="fld">
+        <div class="lab">위치</div>
+        <div class="seg" id="segQuote">
+          <button type="button" data-v="left" aria-pressed="true">왼쪽</button>
+          <button type="button" data-v="right" aria-pressed="false">오른쪽</button>
+        </div>
+      </div>
+      <div id="quoteOpts">
+        <div class="row" style="margin-top:14px">
+          <div class="fld">
+            <div class="lab">두께</div>
+            <div class="step" data-for="quoteW"><b>−</b><span class="n"></span><input type="range" id="quoteW" min="1" max="16" step="1" value="3"><b>+</b></div>
+          </div>
+          <div class="fld">
+            <div class="lab">선 ↔ 글</div>
+            <div class="step" data-for="quoteGap"><b>−</b><span class="n"></span><input type="range" id="quoteGap" min="0" max="60" step="1" value="14"><b>+</b></div>
+          </div>
+        </div>
+        <div class="fld" style="margin-top:14px">
+          <div class="lab">선 색</div>
+          <div class="c__box">
+            <input type="color" id="cQuote" value="#c8cfc0">
+            <input class="c__hex" type="text" id="cQuoteT" value="#c8cfc0">
+          </div>
+        </div>
+        <div class="fld" style="margin-top:14px">
+          <div class="lab">글자색 <span class="note">&gt; 줄 안쪽</span></div>
+          <div class="c__box">
+            <input type="color" id="cQInk" value="#1a1a1a">
+            <input class="c__hex" type="text" id="cQInkT" value="#1a1a1a">
+          </div>
+        </div>
+        <label class="sw" style="margin-top:12px">
+          <span class="sw__t"><b>대사에도 자동으로</b></span>
+          <input type="checkbox" id="quoteAuto">
+        </label>
+        <label class="sw" style="margin-top:10px">
+          <span class="sw__t"><b>인물 색으로</b></span>
+          <input type="checkbox" id="quoteChar">
+        </label>
+        <p class="hint">이어진 <code>&gt;</code> 줄은 선 하나로 묶입니다</p>
+      </div>
+        </div>
+      </details>
+      <details class="fold" id="fold3">
+        <summary>들여쓰기<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="fold__b">
+      <div class="fld">
+        <div class="seg seg--wrap seg--half" id="segDirInd">
+          <button type="button" data-v="none" aria-pressed="true">없음</button>
+          <button type="button" data-v="first" aria-pressed="false">첫 줄만</button>
+          <button type="button" data-v="col" aria-pressed="false">대사 칸에 맞춤</button>
+          <button type="button" data-v="all" aria-pressed="false">전체</button>
+        </div>
+      </div>
+      <div class="fld" id="fldDirInd" style="margin-top:14px;display:none">
+        <div class="lab">들여쓸 만큼</div>
+        <div class="step" data-for="dirInd"><b>−</b><span class="n"></span><input type="range" id="dirInd" min="0" max="300" step="2" value="20"><b>+</b></div>
+      </div>
+        </div>
+      </details>
+      <details class="fold" id="fold4" open>
+        <summary>글자<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="fold__b">
+      <div class="row">
+        <div class="fld">
+          <div class="lab">글꼴</div>
+          <select id="font">
+            <option value='"Pretendard",sans-serif' selected>프리텐다드</option>
+            <option value="'BookkMyungjo',serif">부크크 명조</option>
+          </select>
+        </div>
+        <div class="fld">
+          <div class="lab">크기</div>
+          <div class="step" data-for="size"><b>−</b><span class="n"></span><input type="range" id="size" min="10" max="60" step="1" value="18"><b>+</b></div>
+        </div>
+      </div>
+      <div class="row3" style="margin-top:14px">
+        <div class="fld">
+          <div class="lab">행간</div>
+          <div class="step" data-for="lh"><b>−</b><span class="n"></span><input type="range" id="lh" min="10" max="26" step="1" value="18"><b>+</b></div>
+        </div>
+        <div class="fld">
+          <div class="lab">자간</div>
+          <div class="step" data-for="ls"><b>−</b><span class="n"></span><input type="range" id="ls" min="-2" max="2" step="0.1" value="-1.3"><b>+</b></div>
+        </div>
+        <div class="fld">
+          <div class="lab">장평</div>
+          <div class="step" data-for="stretch"><b>−</b><span class="n"></span><input type="range" id="stretch" min="80" max="120" step="1" value="100"><b>+</b></div>
+        </div>
+      </div>
+      <div class="fld" style="margin-top:14px">
+        <div class="lab">본문 정렬</div>
+        <div class="seg" id="segAlign">
+          <button type="button" data-v="left" aria-pressed="true">왼쪽</button>
+          <button type="button" data-v="center" aria-pressed="false">가운데</button>
+          <button type="button" data-v="right" aria-pressed="false">오른쪽</button>
+          <button type="button" data-v="justify" aria-pressed="false">양쪽</button>
+        </div>
+      </div>
+      <div class="fld" style="margin-top:14px">
+        <div class="lab">줄바꿈 기준</div>
+        <div class="seg" id="segWb">
+          <button type="button" data-v="keep-all" aria-pressed="true">단어 단위</button>
+          <button type="button" data-v="break-all" aria-pressed="false">글자 단위</button>
+        </div>
+      </div>
+        </div>
+      </details>
+      <details class="fold" id="fold5">
+        <summary>간격<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="fold__b">
+      <div class="row">
+        <div class="fld">
+          <div class="lab">대사 ↔ 번역</div>
+          <div class="step" data-for="rowGap"><b>−</b><span class="n"></span><input type="range" id="rowGap" min="0" max="60" step="1" value="0"><b>+</b></div>
+        </div>
+        <div class="fld">
+          <div class="lab">대사 ↔ 대사</div>
+          <div class="step" data-for="sayGap"><b>−</b><span class="n"></span><input type="range" id="sayGap" min="0" max="80" step="1" value="0"><b>+</b></div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <div class="fld">
+          <div class="lab">대사 ↔ 지문</div>
+          <div class="step" data-for="dirGap"><b>−</b><span class="n"></span><input type="range" id="dirGap" min="0" max="100" step="1" value="0"><b>+</b></div>
+        </div>
+        <div class="fld">
+          <div class="lab">빈 줄</div>
+          <div class="step" data-for="paraGap"><b>−</b><span class="n"></span><input type="range" id="paraGap" min="0" max="120" step="2" value="18"><b>+</b></div>
+        </div>
+      </div>
+        </div>
+      </details>
+      <details class="fold" id="fold6">
+        <summary>색<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="fold__b">
+      <div class="cgrid">
+        <div class="c"><label>배경</label><div class="c__box"><input type="color" id="cBg" value="#ffffff"><input class="c__hex" type="text" id="cBgT" value="#ffffff"></div></div>
+        <div class="c"><label>대사</label><div class="c__box"><input type="color" id="cFg" value="#1a1a1a"><input class="c__hex" type="text" id="cFgT" value="#1a1a1a"></div></div>
+        <div class="c"><label>이름 기본</label><div class="c__box"><input type="color" id="cName" value="#1a1a1a"><input class="c__hex" type="text" id="cNameT" value="#1a1a1a"></div></div>
+        <div class="c"><label>번역</label><div class="c__box"><input type="color" id="cTr" value="#666666"><input class="c__hex" type="text" id="cTrT" value="#666666"></div></div>
+        <div class="c"><label>지문</label><div class="c__box"><input type="color" id="cDir" value="#1a1a1a"><input class="c__hex" type="text" id="cDirT" value="#1a1a1a"></div></div>
+        <div class="c"><label>제목</label><div class="c__box"><input type="color" id="cTitle" value="#1a1a1a"><input class="c__hex" type="text" id="cTitleT" value="#1a1a1a"></div></div>
+      </div>
+      <div class="cgrid cgrid--3" style="margin-top:14px">
+        <div class="c"><label>형광 1</label><div class="c__box"><input type="color" id="cHl1" value="#e7ecdf"><input class="c__hex" type="text" id="cHl1T" value="#e7ecdf"></div></div>
+        <div class="c"><label>형광 2</label><div class="c__box"><input type="color" id="cHl2" value="#dfe6ec"><input class="c__hex" type="text" id="cHl2T" value="#dfe6ec"></div></div>
+        <div class="c"><label>형광 3</label><div class="c__box"><input type="color" id="cHl3" value="#efe0e6"><input class="c__hex" type="text" id="cHl3T" value="#efe0e6"></div></div>
+        <div class="c"><label>강조 1</label><div class="c__box"><input type="color" id="cEm1" value="#6b8c3a"><input class="c__hex" type="text" id="cEm1T" value="#6b8c3a"></div></div>
+        <div class="c"><label>강조 2</label><div class="c__box"><input type="color" id="cEm2" value="#3c5f8a"><input class="c__hex" type="text" id="cEm2T" value="#3c5f8a"></div></div>
+        <div class="c"><label>강조 3</label><div class="c__box"><input type="color" id="cEm3" value="#a8443c"><input class="c__hex" type="text" id="cEm3T" value="#a8443c"></div></div>
+      </div>
+        </div>
+      </details>
+      <details class="fold" id="fold7" open>
+        <summary>종이<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="fold__b">
+      <div class="fld">
+        <div class="lab">세로 길이</div>
+        <div class="seg" id="segFit">
+          <button type="button" data-v="auto" aria-pressed="true">글 길이에 맞춤</button>
+          <button type="button" data-v="ratio" aria-pressed="false">비율 고정</button>
+        </div>
+      </div>
+      <div class="fld" id="fldRatio" style="margin-top:14px;display:none">
+        <div class="lab">비율</div>
+        <div class="seg seg--wrap" id="segRatio">
+          <button type="button" data-v="1:1" aria-pressed="false">1:1</button>
+          <button type="button" data-v="4:5" aria-pressed="true">4:5</button>
+          <button type="button" data-v="3:4" aria-pressed="false">3:4</button>
+          <button type="button" data-v="2:3" aria-pressed="false">2:3</button>
+          <button type="button" data-v="9:16" aria-pressed="false">9:16</button>
+          <button type="button" data-v="16:9" aria-pressed="false">16:9</button>
+        </div>
+      </div>
+      <div class="fld" style="margin-top:14px">
+        <div class="lab">가로 크기</div>
+        <div class="step" data-for="pw"><b>−</b><span class="n"></span><input type="range" id="pw" min="500" max="2000" step="20" value="900"><b>+</b></div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <div class="fld">
+          <div class="lab">가로 여백</div>
+          <div class="step" data-for="padX"><b>−</b><span class="n"></span><input type="range" id="padX" min="0" max="300" step="5" value="80"><b>+</b></div>
+        </div>
+        <div class="fld">
+          <div class="lab">세로 여백</div>
+          <div class="step" data-for="padY"><b>−</b><span class="n"></span><input type="range" id="padY" min="0" max="300" step="5" value="70"><b>+</b></div>
+        </div>
+      </div>
+      <p class="warn" id="overflow" hidden></p>
+      <div class="row" style="margin-top:14px">
+        <div class="fld">
+          <div class="lab">제목 크기</div>
+          <div class="step" data-for="ts"><b>−</b><span class="n"></span><input type="range" id="ts" min="12" max="90" step="2" value="32"><b>+</b></div>
+        </div>
+        <div class="fld">
+          <div class="lab">제목 아래</div>
+          <div class="step" data-for="tg"><b>−</b><span class="n"></span><input type="range" id="tg" min="0" max="120" step="2" value="28"><b>+</b></div>
+        </div>
+      </div>
+        </div>
+      </details>
+      <details class="fold" id="fold8">
+        <summary>프리셋<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="fold__b">
+      <p class="empty" id="preEmpty">내용·인물 제외 설정만 저장</p>
+      <div class="chips" id="preList"></div>
+      <button class="act act--sub btn-full" id="preSave" type="button">＋ 현재 설정 저장</button>
+      <div class="row" style="margin-top:8px">
+        <button class="act act--sub" id="preExport" type="button" style="height:36px;font-size:12px">내보내기</button>
+        <button class="act act--sub" id="preImport" type="button" style="height:36px;font-size:12px">가져오기</button>
+      </div>
+        </div>
+      </details>
+      <details class="fold" id="fold9">
+        <summary>저장(해상도)<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <div class="fold__b">
+      <div class="fld">
+        <div class="lab">해상도</div>
+        <div class="seg" id="segScale">
+          <button type="button" data-v="1" aria-pressed="false">1배</button>
+          <button type="button" data-v="2" aria-pressed="true">2배</button>
+          <button type="button" data-v="3" aria-pressed="false">3배</button>
+        </div>
+      </div>
+        </div>
+      </details>
+
+      <button class="act act--sub btn-full" id="reset" type="button" style="margin-top:20px;color:var(--danger);border-color:var(--danger)">모두 처음 상태로</button>
+    </div>
+
+    <div class="bar">
+      <button class="act act--sub" id="copy" type="button">이미지 복사</button>
+      <button class="act act--go" id="savePng" type="button">PNG 저장</button>
+    </div>
+  </section>
+
+  <section class="view">
+    <div class="view__bar">
+      <span class="view__meta" id="meta"></span>
+    </div>
+    <div class="view__scroll">
+      <div id="stage"><div id="stageIn"><div id="paper"></div></div></div>
+    </div>
+  </section>
+</div>
+
+
+<div class="fbar" id="fbar" role="toolbar" aria-label="서식">
+  <button class="tool" type="button" data-w="**" title="굵게"><b>B</b></button>
+  <button class="tool" type="button" data-w="//" title="기울임"><i>I</i></button>
+  <button class="tool" type="button" data-w="__" title="밑줄"><u>U</u></button>
+  <span class="tools__div"></span>
+  <button class="tool" type="button" data-w="==" title="형광펜 1"><span class="tool__bar" id="fb1"></span></button>
+  <button class="tool" type="button" data-w="~~" title="형광펜 2"><span class="tool__bar" id="fb2"></span></button>
+  <button class="tool" type="button" data-w="%%" title="형광펜 3"><span class="tool__bar" id="fb3"></span></button>
+  <span class="tools__div"></span>
+  <button class="tool" type="button" data-w="!!" title="강조색 1"><span class="tool__dot" id="fd1"></span></button>
+  <button class="tool" type="button" data-w="@@" title="강조색 2"><span class="tool__dot" id="fd2"></span></button>
+  <button class="tool" type="button" data-w="$$" title="강조색 3"><span class="tool__dot" id="fd3"></span></button>
+  <span class="tools__div"></span>
+  <button class="tool" type="button" data-q="1" title="인용선"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3.5 3.5v13" stroke-width="2.6"/><path d="M8 6h9M8 10h9M8 14h6"/></svg></button>
+  <button class="tool" type="button" data-clear="1" title="서식 지우기"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 15.5H16"/><path d="M11.8 4.2 4.5 11.5a1.4 1.4 0 0 0 0 2l1.8 1.8h3.4l6.3-6.3a1.4 1.4 0 0 0 0-2l-2.2-2.8a1.4 1.4 0 0 0-2 0Z"/></svg></button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+(function(){
+'use strict';
+var $=function(id){ return document.getElementById(id); };
+var paper=$('paper'), src=$('src'), stage=$('stage'), stageIn=$('stageIn');
+
+/* ===================== 세그먼트 ===================== */
+var segs={ segNameCol:'auto', segNameAlign:'left', segNameWeight:'700', segAlign:'left', segWb:'keep-all',
+           segDirInd:'none', segQuote:'left', segFit:'auto', segRatio:'4:5', segScale:'2' };
+function segVis(){
+  $('fldNameW').style.display=(segs.segNameCol==='fix')?'':'none';
+  $('fldRatio').style.display=(segs.segFit==='ratio')?'':'none';
+  $('fldDirInd').style.display=(segs.segDirInd==='first'||segs.segDirInd==='all')?'':'none';
+
+}
+Object.keys(segs).forEach(function(id){
+  var seg=$(id); if(!seg) return;
+  seg.querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click', function(){
+      seg.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      segs[id]=b.getAttribute('data-v');
+      segVis(); render(); save();
+    });
+  });
+});
+
+/* ===================== 스테퍼 ===================== */
+var STEP_IDS=['size','ls','lh','stretch','rowGap','sayGap','dirGap','paraGap','colGap','nameW','dirInd','quoteW','quoteGap',
+              'pw','padX','padY','ts','tg'];
+var UNITS={size:'px',ls:'',lh:'',stretch:'%',rowGap:'px',sayGap:'px',dirGap:'px',paraGap:'px',
+           colGap:'px',nameW:'',dirInd:'px',quoteW:'px',quoteGap:'px',pw:'px',padX:'px',padY:'px',ts:'px',tg:'px'};
+function shown(id){
+  var v=parseFloat($(id).value);
+  if(id==='lh') return (v/10).toFixed(1);
+  if(id==='ls') return v.toFixed(1);
+  if(id==='nameW') return v+' 글자';
+  return v+(UNITS[id]||'');
+}
+function label(id){
+  var el=$('v'+id.charAt(0).toUpperCase()+id.slice(1));
+  if(el) el.textContent=shown(id);
+  var box=document.querySelector('.step[data-for="'+id+'"] .n');
+  if(box) box.textContent=shown(id);
+}
+function nearest(sl,raw){
+  var mn=parseFloat(sl.min), mx=parseFloat(sl.max), st=parseFloat(sl.step)||1;
+  var v=parseFloat(raw); if(isNaN(v)) return parseFloat(sl.value);
+  v=Math.min(mx,Math.max(mn,v));
+  v=mn+Math.round((v-mn)/st)*st;
+  return Math.round(Math.min(mx,Math.max(mn,v))*1000)/1000;
+}
+document.querySelectorAll('.step').forEach(function(step){
+  var id=step.getAttribute('data-for'), sl=$(id);
+  var minus=step.querySelector('b:first-child'), plus=step.querySelector('b:last-child'), n=step.querySelector('.n');
+  function sync(){
+    minus.disabled=parseFloat(sl.value)<=parseFloat(sl.min);
+    plus.disabled =parseFloat(sl.value)>=parseFloat(sl.max);
+    label(id);
+  }
+  function bump(d){
+    var nv=nearest(sl,(parseFloat(sl.value)||0)+d*(parseFloat(sl.step)||1));
+    if(String(nv)===String(sl.value)){ sync(); return false; }
+    sl.value=nv; sync(); render(); return true;
+  }
+  function press(btn,d){
+    var t=null, ticks=0;
+    function stop(){ if(t){clearTimeout(t);clearInterval(t);t=null;} if(ticks) save(); ticks=0; }
+    function start(e){
+      if(btn.disabled) return;
+      if(e){ e.preventDefault(); e.stopPropagation(); }
+      bump(d);
+      t=setTimeout(function(){
+        t=setInterval(function(){
+          ticks++;
+          if(!bump(d)){ stop(); return; }
+          if(ticks===8){ clearInterval(t); t=setInterval(function(){ if(!bump(d)) stop(); },34); }
+        },68);
+      },300);
+    }
+    if(window.PointerEvent){
+      btn.addEventListener('pointerdown',start);
+      ['pointerup','pointercancel','pointerleave'].forEach(function(ev){ btn.addEventListener(ev,stop); });
+    } else {
+      btn.addEventListener('mousedown',start);
+      btn.addEventListener('touchstart',start,{passive:false});
+      ['mouseup','mouseleave','touchend','touchcancel'].forEach(function(ev){ btn.addEventListener(ev,stop); });
+    }
+  }
+  press(minus,-1); press(plus,1);
+  n.addEventListener('click', function(){
+    var inp=document.createElement('input');
+    inp.type='text'; inp.className='ed'; inp.inputMode='decimal'; inp.value=sl.value;
+    n.style.display='none'; n.parentNode.insertBefore(inp,n.nextSibling);
+    inp.focus(); inp.select();
+    var done=false;
+    function fin(apply){
+      if(done) return; done=true;
+      if(apply){
+        var nv=nearest(sl,inp.value);
+        if(String(nv)!==String(sl.value)){ sl.value=nv; sync(); render(); save(); }
+      }
+      if(inp.parentNode) inp.parentNode.removeChild(inp);
+      n.style.display='';
+    }
+    inp.addEventListener('keydown', function(e){
+      if(e.key==='Enter'){ e.preventDefault(); fin(true); }
+      else if(e.key==='Escape'){ e.preventDefault(); fin(false); }
+    });
+    inp.addEventListener('blur', function(){ fin(true); });
+  });
+  sync();
+});
+
+/* ===================== 색 ===================== */
+function linkColor(a,b,after){
+  var c=$(a), t=$(b); if(!c||!t) return;
+  c.addEventListener('input', function(){ t.value=c.value; if(after) after(); render(); save(); });
+  t.addEventListener('input', function(){
+    var v=t.value.trim();
+    if(/^#?[0-9a-fA-F]{3}$|^#?[0-9a-fA-F]{6}$/.test(v)){
+      c.value=v.charAt(0)==='#'?v:'#'+v;
+      if(after) after(); render(); save();
+    }
+  });
+}
+function swatches(){
+  for(var i=1;i<=3;i++){
+    var hlv=$('cHl'+i).value, emv=$('cEm'+i).value;
+    var bar=$('tb'+i); if(bar) bar.style.background=hlv;
+    var dot=$('td'+i); if(dot) dot.style.background=emv;
+    var fbb=$('fb'+i); if(fbb) fbb.style.background=hlv;
+    var fbd=$('fd'+i); if(fbd) fbd.style.background=emv;
+  }
+}
+['Bg','Fg','Name','Tr','Dir','Title'].forEach(function(k){ linkColor('c'+k,'c'+k+'T'); });
+[1,2,3].forEach(function(i){
+  linkColor('cHl'+i,'cHl'+i+'T',swatches);
+  linkColor('cEm'+i,'cEm'+i+'T',swatches);
+});
+linkColor('cQuote','cQuoteT');
+linkColor('cQInk','cQInkT');
+linkColor('chColor','chColorT');
+
+/* ===================== 서식 툴바 ===================== */
+function wrapSel(m){
+  var s=src.selectionStart, e=src.selectionEnd, sel=src.value.slice(s,e);
+  src.focus();
+  if(sel){
+    src.setRangeText(m+sel+m, s, e, 'end');
+    src.setSelectionRange(s+m.length, s+m.length+sel.length);
+  } else {
+    src.setRangeText(m+m, s, e, 'end');
+    src.setSelectionRange(s+m.length, s+m.length);
+  }
+  render(); save();
+}
+var MARK_RE=/\*\*|\/\/|__|==|~~|%%|!!|@@|\$\$/g;
+function clearSel(){
+  var s=src.selectionStart, e=src.selectionEnd;
+  if(s===e){ return; }
+  var t=src.value.slice(s,e).replace(MARK_RE,'');
+  src.focus();
+  src.setRangeText(t, s, e, 'end');
+  src.setSelectionRange(s, s+t.length);
+  render(); save();
+}
+document.querySelectorAll('.tool[data-w]').forEach(function(btn){
+  btn.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  btn.addEventListener('click', function(){ wrapSel(btn.getAttribute('data-w')); placeBar(); });
+});
+document.querySelectorAll('.tool[data-clear]').forEach(function(btn){
+  btn.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  btn.addEventListener('click', function(){ clearSel(); placeBar(); });
+});
+$('btnClear').addEventListener('mousedown', function(e){ e.preventDefault(); });
+$('btnClear').addEventListener('click', clearSel);
+document.querySelectorAll('.tool[data-q]').forEach(function(btn){
+  btn.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  btn.addEventListener('click', function(){ $('btnQuote').click(); placeBar(); });
+});
+
+/* ===== 드래그한 자리에 뜨는 서식 막대 =====
+   textarea 는 선택 영역의 좌표를 알려주지 않는다.
+   그래서 같은 글꼴·폭을 가진 보이지 않는 사본에 같은 글을 넣고,
+   선택 지점에 표식을 꽂아 그 위치를 재는 방식을 쓴다. */
+var fbar=$('fbar'), mirror=null;
+function caretXY(pos){
+  if(!mirror){
+    mirror=document.createElement('div');
+    mirror.setAttribute('aria-hidden','true');
+    mirror.style.cssText='position:absolute;visibility:hidden;pointer-events:none;top:0;left:-9999px;';
+    document.body.appendChild(mirror);
+  }
+  var cs=getComputedStyle(src);
+  ['fontFamily','fontSize','fontWeight','fontStyle','lineHeight','letterSpacing','textIndent',
+   'paddingTop','paddingRight','paddingBottom','paddingLeft',
+   'borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth',
+   'whiteSpace','overflowWrap','wordBreak'].forEach(function(p){ mirror.style[p]=cs[p]; });
+  mirror.style.boxSizing='border-box';
+  mirror.style.borderStyle='solid';
+  mirror.style.width=src.offsetWidth+'px';
+  mirror.textContent=src.value.slice(0,pos);
+  var sp=document.createElement('span'); sp.textContent='\u200b';
+  mirror.appendChild(sp);
+  var r=src.getBoundingClientRect();
+  return { top:r.top+sp.offsetTop-src.scrollTop, left:r.left+sp.offsetLeft,
+           lh:parseFloat(cs.lineHeight)||20, box:r };
+}
+function hideBar(){ fbar.classList.remove('on'); }
+function placeBar(){
+  var s=src.selectionStart, e=src.selectionEnd;
+  if(s===e || document.activeElement!==src){ hideBar(); return; }
+  var a=caretXY(s), b=caretXY(e);
+  // 여러 줄이면 선택 시작 줄 위에 띄운다
+  var anchorTop=a.top, anchorLeft=(a.top===b.top) ? (a.left+b.left)/2 : a.left;
+  fbar.classList.add('on');
+  var w=fbar.offsetWidth, hgt=fbar.offsetHeight;
+  var left=anchorLeft-w/2;
+  left=Math.max(8, Math.min(window.innerWidth-w-8, left));
+  var top=anchorTop-hgt-8;
+  if(top<8) top=anchorTop+a.lh+8;                      // 위가 좁으면 아래로
+  if(anchorTop<a.box.top-4 || anchorTop>a.box.bottom){ hideBar(); return; }  // 입력창 밖으로 스크롤된 선택
+  fbar.style.left=left+'px';
+  fbar.style.top=top+'px';
+}
+['select','mouseup','keyup','touchend'].forEach(function(ev){
+  src.addEventListener(ev, function(){ requestAnimationFrame(placeBar); });
+});
+src.addEventListener('scroll', placeBar);
+src.addEventListener('blur', function(){ setTimeout(function(){ if(document.activeElement!==src) hideBar(); }, 100); });
+window.addEventListener('resize', hideBar);
+document.querySelector('.scroll').addEventListener('scroll', hideBar);
+
+/* ===================== 인물 ===================== */
+var CHAR_KEY='geuk-chars-v1';
+var chars=(function(){ try{ var r=localStorage.getItem(CHAR_KEY); return r?JSON.parse(r):[]; }catch(e){ return []; } })();
+var editingChar=null;
+function saveChars(){ try{ localStorage.setItem(CHAR_KEY, JSON.stringify(chars)); }catch(e){} }
+function charByKey(k){
+  var key=String(k).trim();
+  for(var i=0;i<chars.length;i++){
+    if(chars[i].name===key) return chars[i];
+  }
+  return null;
+}
+function renderChars(){
+  var wrap=$('charList'); wrap.innerHTML='';
+  $('charEmpty').style.display=chars.length?'none':'';
+  chars.forEach(function(c,i){
+    var chip=document.createElement('div'); chip.className='chip'; chip.title='눌러서 수정';
+    var dot=document.createElement('span'); dot.className='chip__dot'; dot.style.background=c.color;
+    var nm=document.createElement('span'); nm.textContent=c.name;
+    chip.appendChild(dot); chip.appendChild(nm);
+    var x=document.createElement('span'); x.className='chip__x'; x.textContent='×'; x.title='삭제';
+    chip.appendChild(x);
+    nm.addEventListener('click', function(){ openChar(i); });
+    dot.addEventListener('click', function(){ openChar(i); });
+    x.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      if(!confirm('"'+c.name+'" 삭제할까요?')) return;
+      chars.splice(i,1); saveChars(); renderChars(); render();
+    });
+    wrap.appendChild(chip);
+  });
+}
+function openChar(i){
+  editingChar=(typeof i==='number')?i:null;
+  var c=(editingChar!==null)?chars[editingChar]:{name:'',color:'#2d4a3e'};
+  $('chName').value=c.name||'';
+  $('chColor').value=c.color||'#2d4a3e'; $('chColorT').value=c.color||'#2d4a3e';
+  $('chDel').style.display=(editingChar!==null)?'':'none';
+  $('charForm').hidden=false; $('chAdd').hidden=true;
+  $('chName').focus();
+}
+function closeChar(){ $('charForm').hidden=true; $('chAdd').hidden=false; editingChar=null; }
+$('chAdd').addEventListener('click', function(){ openChar(null); });
+$('chCancel').addEventListener('click', closeChar);
+$('chDel').addEventListener('click', function(){
+  if(editingChar===null) return;
+  if(!confirm('삭제할까요?')) return;
+  chars.splice(editingChar,1); saveChars(); renderChars(); closeChar(); render();
+});
+$('chSave').addEventListener('click', function(){
+  var name=$('chName').value.trim();
+  if(!name){ $('chName').focus(); return; }
+  var d={ name:name, color:$('chColor').value };
+  if(editingChar!==null) chars[editingChar]=d; else chars.push(d);
+  saveChars(); renderChars(); closeChar(); render();
+});
+$('chName').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); $('chSave').click(); } });
+$('charTint').addEventListener('change', function(){ render(); save(); });
+$('quoteChar').addEventListener('change', function(){ render(); save(); });
+$('quoteAuto').addEventListener('change', function(){ render(); save(); });
+
+// 고른 줄 앞에 > 를 붙이거나 뗀다
+$('btnQuote').addEventListener('mousedown', function(e){ e.preventDefault(); });
+$('btnQuote').addEventListener('click', function(){
+  var v=src.value, a=src.selectionStart, b=src.selectionEnd;
+  var ls=v.lastIndexOf('\n', a-1)+1;
+  var le=v.indexOf('\n', b); if(le===-1) le=v.length;
+  var lines=v.slice(ls,le).split('\n');
+  var on=lines.every(function(l){ return l.trim()==='' || /^\s*>/.test(l); });
+  var out=lines.map(function(l){
+    if(l.trim()==='') return l;
+    return on ? l.replace(/^(\s*)>\s?/,'$1') : l.replace(/^(\s*)/,'$1> ');
+  }).join('\n');
+  src.focus();
+  src.setRangeText(out, ls, le, 'end');
+  src.setSelectionRange(ls, ls+out.length);
+  render(); save();
+});
+
+/* ===================== 파싱 ===================== */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function strip(s){ return String(s).replace(/^\s*>\s?/,'').replace(/\*\*|\/\/|__|==|~~|%%|!!|@@|\$\$/g,''); }
+var MARKS=[
+  [/\*\*([^*]+?)\*\*/g,'p-b'], [/\/\/([^/]+?)\/\//g,'p-i'], [/__([^_]+?)__/g,'p-u'],
+  [/==([^=]+?)==/g,'p-hl1'], [/~~([^~]+?)~~/g,'p-hl2'], [/%%([^%]+?)%%/g,'p-hl3'],
+  [/!!([^!]+?)!!/g,'p-em1'], [/@@([^@]+?)@@/g,'p-em2'], [/\$\$([^$]+?)\$\$/g,'p-em3']
+];
+function inline(s){
+  var t=esc(s);
+  MARKS.forEach(function(m){ t=t.replace(m[0],'<span class="'+m[1]+'">$1</span>'); });
+  return t;
+}
+function parse(text){
+  var lines=String(text).replace(/\r\n/g,'\n').split('\n');
+  var out=[], prevKind=null, lastChar=null;
+  lines.forEach(function(raw){
+    if(raw.trim()===''){ out.push({t:'gap'}); prevKind=null; lastChar=null; return; }
+
+    var qm=raw.match(/^\s*>\s?([\s\S]*)$/);
+    if(qm){
+      var qb=qm[1].trim();
+      out.push({t:'q', text:qb, tr:/^[(（[［{]/.test(qb)});
+      prevKind='q'; return;
+    }
+
+    var m=raw.match(/^([^|\t]{1,24}?)\s*(?:\||\t)\s*([\s\S]*)$/);
+    if(m){
+      var key=m[1].trim(), c=charByKey(key);
+      lastChar=c;
+      out.push({t:'say', name:c?c.name:key, text:m[2], tr:false, color:c?c.color:null});
+      prevKind='say'; return;
+    }
+
+    // 이름표가 없는 줄. 바로 앞이 대사면 그 대사에 이어 붙고, 그 밖에는 지문으로 둔다.
+    // (지문 다음 줄도 계속 지문이라 문단이 대사 칸으로 밀려나지 않는다)
+    var body=raw.trim();
+    var isTr=/^[(（[［{]/.test(body);
+    if(prevKind==='say'){
+      out.push({t:'say', name:'', text:body, tr:isTr, color:lastChar?lastChar.color:null});
+    } else {
+      out.push({t:'dir', text:body, tr:isTr});
+      prevKind='dir';
+    }
+  });
+  while(out.length && out[out.length-1].t==='gap') out.pop();
+  while(out.length && out[0].t==='gap') out.shift();
+  return out;
+}
+function build(){
+  var rows=parse(src.value), tint=$('charTint').checked, html='';
+  var dirCls=(segs.segDirInd==='col')?' col':'';
+  var rowGap=+$('rowGap').value, sayGap=+$('sayGap').value,
+      dirGap=+$('dirGap').value, paraGap=+$('paraGap').value;
+  var qPos=(segs.segQuote==='right')?'right':'left';
+  var qW=+$('quoteW').value, qBase=$('cQuote').value, qChar=$('quoteChar').checked;
+  var qAuto=$('quoteAuto').checked;
+  function qStyle(color){ return ' style="border-'+qPos+':'+qW+'px solid '+(color||qBase)+'"'; }
+  function sp(h){ return h>0 ? '<div class="p-sp" style="height:'+h+'px"></div>' : ''; }
+
+  // 이름 있는 대사로 시작해, 이름 없는 줄(번역·이어지는 줄)까지 한 묶음으로 만든다
+  var blocks=[], cur=null;
+  rows.forEach(function(r){
+    if(r.t==='gap' || r.t==='dir'){ cur=null; blocks.push({k:r.t, r:r}); return; }
+    if(r.t==='q'){
+      if(cur && cur.k==='q'){ cur.lines.push(r); return; }
+      cur={k:'q', lines:[r]}; blocks.push(cur); return;
+    }
+    if(r.name || !cur || cur.k!=='say'){ cur={k:'say', name:r.name, color:r.color, lines:[r]}; blocks.push(cur); return; }
+    cur.lines.push(r);
+  });
+
+  var prev=null;
+  blocks.forEach(function(b){
+    if(b.k==='gap'){ html+=sp(paraGap); prev='gap'; return; }
+    if(prev!==null && prev!=='gap'){
+      if(b.k==='dir' || prev==='dir') html+=sp(dirGap);
+      else html+=sp(sayGap);
+    }
+    if(b.k==='dir'){ html+='<div class="p-dir'+dirCls+(b.r.tr?' p-tr':'')+'">'+inline(b.r.text)+'</div>'; prev='dir'; return; }
+
+    if(b.k==='q'){
+      html+='<div class="p-q q-'+qPos+'"'+qStyle(null)+'>';
+      b.lines.forEach(function(l,i){
+        html+='<div class="p-qln'+(l.tr?' p-tr':'')+'"'+(i?' style="margin-top:'+rowGap+'px"':'')+'>'+inline(l.text)+'</div>';
+      });
+      html+='</div>';
+      prev='say'; return;
+    }
+
+    var ns=b.color?' style="color:'+b.color+'"':'';
+    html+='<div class="p-nm"'+ns+'>'+esc(b.name)+'</div>';
+
+    var cls='p-blk', st='';
+    if(qAuto){ cls+=' q-'+qPos; st=qStyle((qChar&&b.color)?b.color:null); }
+    html+='<div class="'+cls+'"'+st+'>';
+    b.lines.forEach(function(l,i){
+      var s=[];
+      if(i) s.push('margin-top:'+rowGap+'px');
+      if(tint && l.color && !l.tr) s.push('color:'+l.color);
+      html+='<div class="p-ln'+(l.tr?' p-tr':'')+'"'+(s.length?' style="'+s.join(';')+'"':'')+'>'+inline(l.text)+'</div>';
+    });
+    html+='</div>';
+    prev='say';
+  });
+  return html;
+}
+function counts(){
+  var rows=parse(src.value), s='';
+  rows.forEach(function(r){ if(r.t!=='gap') s+=(r.name||'')+strip(r.text); });
+  return { all:s.length, noSp:s.replace(/\s/g,'').length };
+}
+
+/* ===================== 렌더 ===================== */
+function render(){
+  var size=+$('size').value, padX=+$('padX').value, padY=+$('padY').value,
+      pw=+$('pw').value, font=$('font').value, st=(+$('stretch').value)/100;
+
+  paper.style.width=pw+'px';
+  paper.style.padding=padY+'px '+padX+'px';
+  paper.style.background=$('cBg').value;
+  paper.style.color=$('cFg').value;
+  paper.style.fontFamily=font;
+  paper.style.fontSize=size+'px';
+  paper.style.lineHeight=(+$('lh').value/10).toFixed(2);
+  paper.style.letterSpacing=(+$('ls').value)+'px';
+
+  var s=paper.style;
+  s.setProperty('--name-col', segs.segNameCol==='fix'?(+$('nameW').value)+'em':'max-content');
+  s.setProperty('--name-align', segs.segNameAlign);
+  s.setProperty('--name-weight', segs.segNameWeight);
+  s.setProperty('--align', segs.segAlign);
+  s.setProperty('--col-gap', (+$('colGap').value)+'px');
+  s.setProperty('--name-color', $('cName').value);
+  s.setProperty('--tr-color', $('cTr').value);
+  s.setProperty('--dir-color', $('cDir').value);
+  var di=+$('dirInd').value;
+  s.setProperty('--dir-pad', (segs.segDirInd==='all'?di:0)+'px');
+  s.setProperty('--dir-ti',  (segs.segDirInd==='first'?di:0)+'px');
+  s.setProperty('--title-color', $('cTitle').value);
+  s.setProperty('--title-size', (+$('ts').value)+'px');
+  s.setProperty('--title-gap', (+$('tg').value)+'px');
+  s.setProperty('--title-font', font);
+  s.setProperty('--wb', segs.segWb);
+  s.setProperty('--q-gap', (+$('quoteGap').value)+'px');
+  s.setProperty('--q-ink', $('cQInk').value);
+  [1,2,3].forEach(function(i){
+    s.setProperty('--hl'+i, $('cHl'+i).value);
+    s.setProperty('--em'+i, $('cEm'+i).value);
+  });
+
+  var title=$('title').value.trim();
+  paper.innerHTML='<div id="sheet">'+
+    (title?'<div class="p-title">'+esc(title)+'</div>':'')+
+    '<div class="p-script" id="scriptGrid">'+build()+'</div></div>';
+
+  // 장평 — 가로로만 눌러 쓰고, 줄어든 만큼 폭을 늘려 글줄 길이를 유지한다
+  var sheet=$('sheet');
+  if(st===1){ sheet.style.width=''; sheet.style.transform=''; sheet.style.transformOrigin=''; }
+  else { sheet.style.width=(100/st)+'%'; sheet.style.transform='scaleX('+st+')'; sheet.style.transformOrigin='left top'; }
+
+  var warn=$('overflow');
+  if(segs.segFit==='ratio'){
+    var p=segs.segRatio.split(':');
+    var h=Math.round(pw*(+p[1])/(+p[0]));
+    paper.style.height=h+'px';
+    paper.classList.add('ratio');
+    var over=sheet.scrollHeight-(h-padY*2);
+    if(over>0){
+      warn.textContent='글이 '+Math.ceil(over)+'px 넘쳐요';
+      warn.hidden=false;
+    } else warn.hidden=true;
+  } else {
+    paper.style.height='';
+    paper.classList.remove('ratio');
+    warn.hidden=true;
+  }
+
+  if($('guide').checked) drawGuide();
+
+  var c=counts();
+  $('charCount').textContent = c.all ? (c.all.toLocaleString()+'자 · 공백 제외 '+c.noSp.toLocaleString()) : '';
+  $('meta').textContent = pw+' × '+Math.round(paper.offsetHeight)+' px';
+  fit();
+}
+function drawGuide(){
+  var grid=$('scriptGrid'); if(!grid) return;
+  var first=grid.querySelector('.p-ln'); if(!first) return;
+  var r=first.getBoundingClientRect(), pr=paper.getBoundingClientRect();
+  var g=document.createElement('div'); g.className='p-guide';
+  g.style.left=(r.left-pr.left)+'px';
+  paper.appendChild(g);
+}
+$('guide').addEventListener('change', function(){ render(); save(); });
+
+/* ===================== 접은글 ===================== */
+var folds=[].slice.call(document.querySelectorAll('details.fold'));
+function foldState(){ return folds.map(function(d){ return d.open; }); }
+function setFolds(a){
+  if(!Array.isArray(a)) return;
+  folds.forEach(function(d,i){ if(typeof a[i]==='boolean') d.open=a[i]; });
+  syncFoldAll();
+}
+function syncFoldAll(){
+  var anyOpen=folds.some(function(d){ return d.open; });
+  $('foldAll').textContent = anyOpen ? '모두 접기' : '모두 펼치기';
+}
+folds.forEach(function(d){
+  d.addEventListener('toggle', function(){
+    syncFoldAll();
+    save();
+  });
+});
+$('foldAll').addEventListener('click', function(){
+  var anyOpen=folds.some(function(d){ return d.open; });
+  folds.forEach(function(d){ d.open=!anyOpen; });
+  syncFoldAll(); save();
+});
+
+/* ===================== 미리보기 축소 ===================== */
+var raf=0;
+function fit(){
+  if(raf) cancelAnimationFrame(raf);
+  raf=requestAnimationFrame(function(){
+    var avail=stage.clientWidth; if(!avail) return;
+    var w=+$('pw').value, k=Math.min(1, avail/w);
+    stageIn.style.transform='scale('+k+')';
+    stageIn.style.width=w+'px';
+    stage.style.height=(paper.offsetHeight*k)+'px';
+  });
+}
+if(window.ResizeObserver){ new ResizeObserver(fit).observe(document.querySelector('.view__scroll')); }
+window.addEventListener('resize', function(){ fit(); });
+
+src.addEventListener('input', function(){ render(); save(); });
+$('title').addEventListener('input', function(){ render(); save(); });
+$('font').addEventListener('change', function(){ render(); save(); });
+STEP_IDS.forEach(function(id){
+  $(id).addEventListener('input', function(){ label(id); render(); });
+  $(id).addEventListener('change', save);
+});
+
+/* ===================== 이미지 저장 ===================== */
+function shoot(cb){
+  var scale=+segs.segScale;
+  paper.classList.add('exporting');
+  var sh=paper.style.boxShadow; paper.style.boxShadow='none';
+  var tf=stageIn.style.transform; stageIn.style.transform='none';
+  var pbg=paper.style.background;
+  var bak=[];
+  function restore(){
+    bak.forEach(function(p){ if(p[1]===null) p[0].removeAttribute('style'); else p[0].setAttribute('style',p[1]); });
+    paper.style.background=pbg;
+    paper.classList.remove('exporting');
+    paper.style.boxShadow=sh; stageIn.style.transform=tf; fit();
+  }
+  var ready=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
+  ready.then(function(){
+    requestAnimationFrame(function(){
+      /* html2canvas 는 글자 뒤 배경을 줄 높이 전체로 칠한다.
+         브라우저는 글자 높이만큼만 칠하므로 행간이 넓으면 저장본이 달라진다.
+         그래서 형광펜 자리를 미리 재 두고, 저장할 때 캔버스에 직접 칠한다. */
+      var pr=paper.getBoundingClientRect(), hl=[];
+      [].forEach.call(paper.querySelectorAll('.p-hl1,.p-hl2,.p-hl3'), function(m){
+        var col=getComputedStyle(m).backgroundColor, rs=m.getClientRects();
+        for(var i=0;i<rs.length;i++){
+          var r=rs[i];
+          if(r.width>0 && r.height>0)
+            hl.push({x:r.left-pr.left, y:r.top-pr.top, w:r.width, h:r.height, c:col});
+        }
+        bak.push([m, m.getAttribute('style')]);
+        m.style.setProperty('background-color','transparent','important');
+      });
+      paper.style.background='transparent';
+
+      html2canvas(paper,{scale:scale,backgroundColor:null,useCORS:true,logging:false,
+        width:paper.offsetWidth,height:paper.offsetHeight,scrollX:0,scrollY:0})
+      .then(function(txt){
+        var k=txt.width/Math.max(1,paper.offsetWidth);
+        var out=document.createElement('canvas');
+        out.width=txt.width; out.height=txt.height;
+        var ctx=out.getContext('2d');
+        ctx.fillStyle=$('cBg').value;
+        ctx.fillRect(0,0,out.width,out.height);
+        hl.forEach(function(r){
+          ctx.fillStyle=r.c;
+          ctx.fillRect(r.x*k, r.y*k, r.w*k, r.h*k);
+        });
+        ctx.drawImage(txt,0,0);
+        restore(); cb(out);
+      }).catch(function(){ restore(); cb(null); });
+    });
+  });
+}
+function busy(btn,text,run){
+  var old=btn.textContent;
+  document.querySelectorAll('.bar .act').forEach(function(b){ b.disabled=true; });
+  btn.textContent=text;
+  run(function(msg){
+    document.querySelectorAll('.bar .act').forEach(function(b){ b.disabled=false; });
+    if(msg){ btn.textContent=msg; setTimeout(function(){ btn.textContent=old; },1400); }
+    else btn.textContent=old;
+  });
+}
+$('savePng').addEventListener('click', function(){
+  var btn=this;
+  busy(btn,'저장 중…', function(fin){
+    shoot(function(c){
+      if(!c){ fin('저장 실패'); return; }
+      c.toBlob(function(b){
+        if(!b){ fin('저장 실패'); return; }
+        var a=document.createElement('a'), u=URL.createObjectURL(b);
+        a.href=u; a.download=($('title').value.trim()||'로그')+'.png';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function(){ URL.revokeObjectURL(u); },8000);
+        fin(null);
+      },'image/png');
+    });
+  });
+});
+$('copy').addEventListener('click', function(){
+  var btn=this;
+  if(!(navigator.clipboard&&window.ClipboardItem)){ btn.textContent='복사 안 됨'; setTimeout(function(){ btn.textContent='이미지 복사'; },1400); return; }
+  busy(btn,'복사 중…', function(fin){
+    shoot(function(c){
+      if(!c){ fin('복사 실패'); return; }
+      c.toBlob(function(b){
+        if(!b){ fin('복사 실패'); return; }
+        navigator.clipboard.write([new window.ClipboardItem({'image/png':b})])
+          .then(function(){ fin('복사됨'); }).catch(function(){ fin('복사 실패'); });
+      },'image/png');
+    });
+  });
+});
+
+/* ===================== 설정 저장 · 프리셋 ===================== */
+var KEY='logmaker-v4', PRE_KEY='geuk-presets-v3';
+var IDS=['title','font','size','ls','lh','stretch','rowGap','sayGap','dirGap','paraGap','colGap','nameW',
+         'dirInd','quoteW','quoteGap','pw','padX','padY','ts','tg','cQuote','cQuoteT','cQInk','cQInkT',
+         'cBg','cBgT','cFg','cFgT','cName','cNameT','cTr','cTrT','cDir','cDirT','cTitle','cTitleT',
+         'cHl1','cHl1T','cHl2','cHl2T','cHl3','cHl3T','cEm1','cEm1T','cEm2','cEm2T','cEm3','cEm3T'];
+var PRE_IDS=IDS.filter(function(x){ return x!=='title'; });
+var loading=false;
+
+function grab(ids){
+  var v={}; ids.forEach(function(id){ var e=$(id); if(e) v[id]=e.value; });
+  return { v:v, segs:JSON.parse(JSON.stringify(segs)),
+           guide:$('guide').checked, charTint:$('charTint').checked, quoteChar:$('quoteChar').checked, quoteAuto:$('quoteAuto').checked };
+}
+function apply(d, ids){
+  loading=true;
+  try{
+    if(d.v) ids.forEach(function(id){ var e=$(id); if(e && d.v[id]!=null) e.value=d.v[id]; });
+    if(d.segs) Object.keys(segs).forEach(function(k){ if(d.segs[k]) segs[k]=d.segs[k]; });
+    if(typeof d.guide==='boolean') $('guide').checked=d.guide;
+    if(typeof d.charTint==='boolean') $('charTint').checked=d.charTint;
+    if(typeof d.quoteChar==='boolean') $('quoteChar').checked=d.quoteChar;
+    if(typeof d.quoteAuto==='boolean') $('quoteAuto').checked=d.quoteAuto;
+    if(segs.segQuote!=='left' && segs.segQuote!=='right') segs.segQuote='left';
+    Object.keys(segs).forEach(function(id){
+      var seg=$(id); if(!seg) return;
+      seg.querySelectorAll('button').forEach(function(b){
+        b.setAttribute('aria-pressed', b.getAttribute('data-v')===segs[id]?'true':'false');
+      });
+    });
+    segVis(); STEP_IDS.forEach(label); swatches();
+  }catch(e){}
+  loading=false;
+}
+function save(){
+  if(loading) return;
+  try{ var d=grab(IDS); d.src=src.value; d.folds=foldState(); localStorage.setItem(KEY, JSON.stringify(d)); }catch(e){}
+}
+function load(){
+  var raw; try{ raw=localStorage.getItem(KEY); }catch(e){ return false; }
+  if(!raw) return false;
+  var d; try{ d=JSON.parse(raw); }catch(e){ return false; }
+  apply(d, IDS);
+  if(typeof d.src==='string') src.value=d.src;
+  setFolds(d.folds);
+  return true;
+}
+function loadPresets(){ try{ var r=localStorage.getItem(PRE_KEY); return r?JSON.parse(r):[]; }catch(e){ return []; } }
+function savePresets(l){ try{ localStorage.setItem(PRE_KEY, JSON.stringify(l)); }catch(e){ alert('저장 공간이 부족해요'); } }
+function renderPresets(){
+  var wrap=$('preList'), list=loadPresets(); wrap.innerHTML='';
+  $('preEmpty').style.display=list.length?'none':'';
+  list.forEach(function(p,i){
+    var chip=document.createElement('div'); chip.className='chip'; chip.title='눌러서 불러오기';
+    var nm=document.createElement('span'); nm.textContent=p.name;
+    var x=document.createElement('span'); x.className='chip__x'; x.textContent='×'; x.title='삭제';
+    chip.appendChild(nm); chip.appendChild(x);
+    nm.addEventListener('click', function(){ apply(p.data, PRE_IDS); render(); save(); });
+    x.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      if(!confirm('"'+p.name+'" 삭제할까요?')) return;
+      var l=loadPresets(); l.splice(i,1); savePresets(l); renderPresets();
+    });
+    wrap.appendChild(chip);
+  });
+}
+$('preSave').addEventListener('click', function(){
+  var list=loadPresets();
+  var name=prompt('프리셋 이름', '설정 '+(list.length+1));
+  if(name===null) return;
+  name=name.trim(); if(!name) return;
+  var d=grab(PRE_IDS);
+  var at=-1; for(var i=0;i<list.length;i++){ if(list[i].name===name){ at=i; break; } }
+  if(at>=0){
+    if(!confirm('"'+name+'" 덮어쓸까요?')) return;
+    list[at].data=d;
+  } else list.push({name:name, data:d});
+  savePresets(list); renderPresets();
+});
+$('preExport').addEventListener('click', function(){
+  var list=loadPresets();
+  if(!list.length){ alert('저장된 프리셋이 없어요'); return; }
+  var blob=new Blob([JSON.stringify({type:'geuk-preset', items:list})],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='로그발췌기-프리셋.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); },5000);
+});
+$('preImport').addEventListener('click', function(){
+  var inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
+  inp.addEventListener('change', function(){
+    var f=inp.files&&inp.files[0]; if(!f) return;
+    var rd=new FileReader();
+    rd.onload=function(){
+      try{
+        var o=JSON.parse(rd.result);
+        if(!o || o.type!=='geuk-preset' || !Array.isArray(o.items)) throw 0;
+        var cur=loadPresets();
+        o.items.forEach(function(p){ if(p.name && p.data) cur.push(p); });
+        savePresets(cur); renderPresets();
+        alert(o.items.length+'개 가져왔어요');
+      }catch(e){ alert('프리셋 파일이 아니에요'); }
+    };
+    rd.readAsText(f);
+  });
+  inp.click();
+});
+$('reset').addEventListener('click', function(){
+  if(!confirm('전부 지우고 처음 상태로 되돌릴까요?')) return;
+  loading=true;
+  try{ localStorage.removeItem(KEY); localStorage.removeItem(CHAR_KEY); localStorage.removeItem(PRE_KEY); }catch(e){}
+  location.reload();
+});
+
+/* ===================== 시작 ===================== */
+load();
+syncFoldAll();
+swatches(); segVis(); renderChars(); renderPresets(); render();
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ render(); }); }
+})();
+</script>
+</body>
+</html>
