@@ -267,9 +267,9 @@
   .p-b{font-weight:700;}
   .p-i{font-style:italic;}
   .p-u{text-decoration:underline;text-decoration-thickness:.05em;text-underline-offset:.15em;}
-  .p-hl1{background-color:var(--hl1);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
-  .p-hl2{background-color:var(--hl2);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
-  .p-hl3{background-color:var(--hl3);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
+  .p-hl1{background-color:var(--hl1);color:var(--hl1-ink,inherit);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
+  .p-hl2{background-color:var(--hl2);color:var(--hl2-ink,inherit);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
+  .p-hl3{background-color:var(--hl3);color:var(--hl3-ink,inherit);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
   .p-em1{color:var(--em1);}
   .p-em2{color:var(--em2);}
   .p-em3{color:var(--em3);}
@@ -990,6 +990,16 @@ $('btnQuote').addEventListener('click', function(){
 
 /* ===================== 파싱 ===================== */
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* 색이 얼마나 밝은지 — 흰 글씨를 쓸지 정할 때 쓴다 */
+function _lin(c){ c/=255; return c<=0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); }
+function lumOf(hex){
+  var m=/^#?([0-9a-fA-F]{6})$/.exec(String(hex).trim());
+  if(!m) return 1;
+  var n=parseInt(m[1],16);
+  return 0.2126*_lin((n>>16)&255) + 0.7152*_lin((n>>8)&255) + 0.0722*_lin(n&255);
+}
+function contrast(a,b){ return (Math.max(a,b)+0.05)/(Math.min(a,b)+0.05); }
 function strip(s){ return String(s).replace(/^\s*>\s?/,'').replace(/\*\*|\/\/|__|==|~~|%%|!!|@@|\$\$/g,''); }
 var MARKS=[
   [/\*\*([^*]+?)\*\*/g,'p-b'], [/\/\/([^/]+?)\/\//g,'p-i'], [/__([^_]+?)__/g,'p-u'],
@@ -1134,8 +1144,13 @@ function render(){
   s.setProperty('--wb', segs.segWb);
   s.setProperty('--q-gap', (+$('quoteGap').value)+'px');
   s.setProperty('--q-ink', $('cQInk').value);
+  var bodyL=lumOf($('cFg').value);
   [1,2,3].forEach(function(i){
-    s.setProperty('--hl'+i, $('cHl'+i).value);
+    var hx=$('cHl'+i).value;
+    s.setProperty('--hl'+i, hx);
+    // 형광이 진하면 안쪽 글씨를 흰색으로. 둘 중 더 잘 보이는 쪽을 고른다
+    var L=lumOf(hx);
+    s.setProperty('--hl'+i+'-ink', contrast(L,1) > contrast(L,bodyL) ? '#ffffff' : 'inherit');
     s.setProperty('--em'+i, $('cEm'+i).value);
   });
 
