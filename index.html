@@ -20,7 +20,7 @@
     --ink:#1b1b19; --ink-2:#66665f; --ink-3:#9a9a92;
     --accent:#2d4a3e; --accent-soft:#e4ebe7; --on-accent:#fff;
     --danger:#8f3b34;
-    --r:10px; --r-sm:7px;
+    --r:0px; --r-sm:0px;
     --head-h:54px;
     --ease:cubic-bezier(.2,.6,.35,1);
   }
@@ -32,7 +32,7 @@
     -webkit-text-size-adjust:100%;text-size-adjust:100%;overscroll-behavior-y:none;
   }
   button,input,select,textarea{font-family:inherit;}
-  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:0;}
   ::selection{background:var(--accent);color:#fff;}
 
   .app{display:grid;grid-template-columns:minmax(400px,470px) 1fr;height:100dvh;overflow:hidden;}
@@ -47,14 +47,14 @@
   .scroll{flex:1;min-height:0;overflow-y:auto;padding:18px 18px 26px;-webkit-overflow-scrolling:touch;
     scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;}
   .scroll::-webkit-scrollbar{width:9px;}
-  .scroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:99px;border:3px solid var(--panel);}
+  .scroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:0;border:3px solid var(--panel);}
 
   .bar{display:flex;gap:7px;flex:none;padding:10px 18px 12px;border-top:1px solid var(--line);background:var(--panel);}
-  .act{flex:1;height:40px;border-radius:var(--r-sm);cursor:pointer;font-size:12.5px;font-weight:600;
+  .act{flex:1;height:40px;border-radius:0;cursor:pointer;font-size:12.5px;font-weight:600;
     display:inline-flex;align-items:center;justify-content:center;
     transition:transform .1s var(--ease),background .16s,border-color .16s,filter .16s;}
   .act--go{background:var(--accent);color:var(--on-accent);border:1px solid var(--accent);}
-  .act--go:hover{filter:brightness(1.22);}
+  .act--go:hover{background:#17291f;border-color:#17291f;}
   .act--sub{background:transparent;color:var(--ink);border:1px solid var(--line-2);}
   .act--sub:hover{background:var(--panel-2);}
   .act:active{transform:scale(.98);}
@@ -66,7 +66,7 @@
   .view__scroll{flex:1;min-height:0;overflow:auto;display:flex;align-items:flex-start;justify-content:center;
     padding:20px 30px 40px;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;}
   .view__scroll::-webkit-scrollbar{width:10px;height:10px;}
-  .view__scroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:99px;border:3px solid var(--bg);}
+  .view__scroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:0;border:3px solid var(--bg);}
   #stage{width:100%;max-width:680px;overflow:hidden;}
   #stageIn{transform-origin:top left;}
 
@@ -76,14 +76,14 @@
   .lab .note{font-weight:400;color:var(--ink-3);}
 
   textarea,input[type=text],select{width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
-    border-radius:var(--r-sm);font-size:13px;letter-spacing:-.01em;
+    border-radius:0;font-size:13px;letter-spacing:-.01em;
     transition:border-color .16s var(--ease),background .16s,box-shadow .16s;}
   input[type=text],select{height:38px;padding:0 12px;}
   select{cursor:pointer;appearance:none;-webkit-appearance:none;padding-right:32px;
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%239a9a92' stroke-width='1.5'><path d='M4 6.5l4 4 4-4'/></svg>");
     background-repeat:no-repeat;background-position:right 11px center;}
   textarea{padding:12px;line-height:1.7;resize:vertical;font-size:13px;}
-  textarea:focus,input[type=text]:focus,select:focus{border-color:var(--accent);background:var(--panel);outline:none;box-shadow:0 0 0 3px var(--accent-soft);}
+  textarea:focus,input[type=text]:focus,select:focus{border-color:var(--accent);background:var(--panel);outline:none;}
   #src{height:180px;white-space:pre-wrap;overflow-wrap:break-word;overflow-x:hidden;}
 
   .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
@@ -100,16 +100,18 @@
   .tools::-webkit-scrollbar{display:none;}
   .tools__div{flex:none;width:1px;height:16px;background:var(--line);margin:0 2px;}
   .tool{width:28px;height:30px;flex:none;padding:0;border:1px solid var(--line);background:var(--panel);
-    color:var(--ink);cursor:pointer;border-radius:var(--r-sm);font-size:12.5px;line-height:1;
+    color:var(--ink);cursor:pointer;border-radius:0;font-size:12.5px;line-height:1;
     display:grid;place-items:center;
     transition:background .14s var(--ease),border-color .14s,transform .1s;}
   .tool:hover{background:var(--panel-2);border-color:var(--line-2);}
   .tool:active{transform:scale(.92);}
-  .tool__bar{display:block;width:18px;height:13px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);}
-  .tool__dot{display:block;width:13px;height:13px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);}
+  .tool__bar{display:block;width:18px;height:13px;border-radius:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);}
+  .tool__dot{display:block;width:13px;height:13px;border-radius:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);}
+  .tool__half{display:block;width:18px;height:13px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);
+    background-repeat:no-repeat;background-position:left bottom;background-size:100% 55%;}
 
   .step{display:flex;align-items:stretch;height:38px;overflow:hidden;border:1px solid var(--line);
-    border-radius:var(--r-sm);background:var(--panel-2);transition:border-color .14s var(--ease);}
+    border-radius:0;background:var(--panel-2);transition:border-color .14s var(--ease);}
   .step:hover{border-color:var(--line-2);}
   .step input[type=range]{display:none;}
   .step b{position:relative;flex:none;width:31px;display:flex;align-items:center;justify-content:center;
@@ -125,17 +127,17 @@
     border-radius:0!important;background:var(--panel)!important;text-align:center;font-size:12.5px!important;
     font-variant-numeric:tabular-nums;}
 
-  /* 밑줄 탭 — 통도 움직이는 조각도 없이, 고른 것에만 밑줄이 그어진다 */
-  .seg{display:flex;flex-wrap:wrap;gap:0;position:relative;
-    background:none;border:none;border-bottom:1px solid var(--line);border-radius:0;
-    height:auto;padding:0;}
-  .seg button{flex:1 1 0;min-width:0;border:none;background:none;cursor:pointer;
-    padding:9px 4px 8px;margin-bottom:-1px;
-    font-size:12.5px;font-weight:600;color:var(--ink-3);letter-spacing:-.01em;
-    border-bottom:2px solid transparent;
-    transition:color .16s var(--ease),border-color .16s var(--ease);}
-  .seg button:hover{color:var(--ink-2);}
-  .seg button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent);}
+  /* 칸 선택 — 위쪽 탭(밑줄)과 모양을 달리해서, 고르는 버튼이라는 게 바로 보이게 */
+  .seg{display:flex;flex-wrap:wrap;gap:0;position:relative;padding:0;height:auto;
+    background:none;border:0;border-top:1px solid var(--line-2);border-left:1px solid var(--line-2);}
+  .seg button{flex:1 1 0;min-width:0;height:34px;padding:0 4px;cursor:pointer;
+    border:0;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);
+    background:var(--panel);font-size:12px;font-weight:500;color:var(--ink-2);letter-spacing:-.01em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    transition:background .14s var(--ease),color .14s var(--ease);}
+  .seg button:hover{background:var(--panel-2);color:var(--ink);}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:#fff;font-weight:600;
+    border-right-color:var(--ink);border-bottom-color:var(--ink);}
   .seg--wrap button{flex:0 0 33.333%;}
   .seg--half button{flex:0 0 50%;}
 
@@ -145,33 +147,73 @@
   .c>label{display:block;font-size:11px;font-weight:600;color:var(--ink-3);letter-spacing:.02em;
     margin:0 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .c__box{display:flex;align-items:center;gap:8px;height:32px;min-width:0;}
-  .c input[type=color]{width:24px;height:24px;flex:none;padding:0;border-radius:50%;overflow:hidden;cursor:pointer;
+  .c input[type=color]{width:24px;height:24px;flex:none;padding:0;border-radius:0;overflow:hidden;cursor:pointer;
     border:1px solid var(--line);background:var(--panel);-webkit-appearance:none;appearance:none;
     box-shadow:0 1px 2px rgba(0,0,0,.08);}
   .c input[type=color]::-webkit-color-swatch-wrapper{padding:0;}
-  .c input[type=color]::-webkit-color-swatch{border:none;border-radius:50%;}
-  .c input[type=color]::-moz-color-swatch{border:none;border-radius:50%;}
+  .c input[type=color]::-webkit-color-swatch{border:none;border-radius:0;}
+  .c input[type=color]::-moz-color-swatch{border:none;border-radius:0;}
   .c__hex{flex:1;min-width:0;height:auto;padding:0;border:none!important;background:transparent!important;
     color:var(--ink-2);font-size:11px;font-family:ui-monospace,"SF Mono",Menlo,monospace;
     text-transform:uppercase;letter-spacing:0;border-radius:0;}
   .c__hex:focus{box-shadow:none!important;color:var(--ink);}
 
   .sw{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;background:var(--panel-2);
-    border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;transition:border-color .16s var(--ease);}
+    border:1px solid var(--line);border-radius:0;padding:12px 14px;transition:border-color .16s var(--ease);}
   .sw:hover{border-color:var(--line-2);}
   .sw>input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:42px;height:25px;margin:0;
-    border-radius:99px;background:var(--panel-3);border:1px solid var(--line);position:relative;cursor:pointer;
+    border-radius:0;background:var(--panel-3);border:1px solid var(--line);position:relative;cursor:pointer;
     transition:background .2s var(--ease);}
   .sw>input[type=checkbox]::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;
-    border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.28);transition:transform .2s var(--ease);}
+    border-radius:0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.28);transition:transform .2s var(--ease);}
   .sw>input[type=checkbox]:checked{background:var(--accent);border-color:transparent;}
   .sw>input[type=checkbox]:checked::after{transform:translateX(17px);}
   .sw__t{display:flex;flex-direction:column;gap:2px;flex:1;}
   .sw__t b{font-size:12.5px;font-weight:600;}
   .sw__t span{font-size:11px;color:var(--ink-3);line-height:1.4;}
 
+  /* ── 설정: 프리셋 + 탭 ───────────────────────── */
+  .sec__t{display:block;font-size:10.5px;font-weight:700;letter-spacing:.14em;color:var(--ink-3);
+    margin:0 0 12px;}
+  .resetrow{display:flex;justify-content:flex-end;margin-top:28px;padding-top:16px;border-top:1px solid var(--line);}
+  .mini--danger{color:var(--danger);}
+  .mini--danger:hover{color:#fff;background:var(--danger);border-color:var(--danger);}
+  .pre{margin-top:20px;}
+  .pre__head{display:flex;align-items:center;gap:5px;margin-bottom:10px;}
+  .pre__head .sec__t{margin:0 auto 0 0;}
+  .pre__row{display:flex;flex-wrap:wrap;align-items:center;gap:7px;}
+  .pre .chips{margin:0!important;}
+  .pre .chips:empty{display:none;}
+  /* 내 프리셋이 있으면 기본 프리셋과 세로선으로 나눈다 */
+  #preList:not(:empty){padding-left:8px;border-left:1px solid var(--line-2);}
+  .pre .empty{display:none!important;}
+
+  .tabs{position:sticky;top:-18px;z-index:5;display:flex;margin:24px -18px 0;padding:0 18px;
+    background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .tab{flex:1 1 0;height:42px;padding:0;border:0;background:none;cursor:pointer;
+    font-size:12.5px;font-weight:600;color:var(--ink-3);
+    border-bottom:2px solid transparent;margin-bottom:-1px;
+    transition:color .14s var(--ease),border-color .14s var(--ease);}
+  .tab:hover{color:var(--ink-2);}
+  .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink);}
+  .tabp{padding-top:20px;}
+  .tabp[hidden]{display:none;}
+
+  .grp{margin-top:24px;padding-top:22px;border-top:1px solid var(--line);}
+  .tabp > .grp:first-child{margin-top:0;padding-top:0;border-top:0;}
+
+  .more{margin-top:24px;border-top:1px solid var(--line);}
+  .more>summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:center;gap:7px;
+    padding:14px 0 0;font-size:11.5px;font-weight:600;color:var(--ink-3);}
+  .more>summary::-webkit-details-marker{display:none;}
+  .more>summary::marker{content:"";}
+  .more>summary::before{content:"+";width:12px;text-align:center;font-size:14px;line-height:1;}
+  .more[open]>summary::before{content:"−";}
+  .more>summary:hover{color:var(--ink);}
+  .more>.grp:first-of-type{margin-top:14px;}
+
   /* 접은글 — 메뉴가 길어 한눈에 안 들어오는 문제를 접어서 푼다 */
-  .fold{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:hidden;}
+  .fold{border:1px solid var(--line);border-radius:0;background:var(--panel);overflow:hidden;}
   .fold + .fold{margin-top:8px;}
   .fold>summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:center;gap:9px;
     padding:12px 14px;font-size:12.5px;font-weight:600;color:var(--ink);
@@ -186,7 +228,7 @@
   .fold__b{padding:14px;}
   /* 드래그하면 그 자리에 뜨는 서식 막대 */
   .fbar{position:fixed;z-index:200;display:flex;align-items:center;gap:4px;padding:5px;
-    background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r-sm);
+    background:var(--panel);border:1px solid var(--line-2);border-radius:0;
     box-shadow:0 10px 28px -12px rgba(0,0,0,.35);
     opacity:0;transform:translateY(5px) scale(.97);pointer-events:none;
     transition:opacity .13s var(--ease),transform .13s var(--ease);}
@@ -198,30 +240,34 @@
   .fbar .tool__dot{width:12px;height:12px;}
 
   .foldbar{display:flex;justify-content:flex-end;margin:16px 0 8px;}
-  .mini{border:1px solid var(--line);background:var(--panel);color:var(--ink-3);border-radius:99px;
+  .mini{border:1px solid var(--line);background:var(--panel);color:var(--ink-3);border-radius:0;
     height:26px;padding:0 12px;font-size:11px;font-weight:600;cursor:pointer;
     transition:background .14s var(--ease),color .14s,border-color .14s;}
   .mini:hover{background:var(--panel-2);color:var(--ink);border-color:var(--line-2);}
 
   .hint{font-size:11.5px;color:var(--ink-3);line-height:1.6;margin:10px 0 0;}
   .hint code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;background:var(--panel-3);
-    padding:1px 5px;border-radius:4px;color:var(--ink-2);}
+    padding:1px 5px;border-radius:0;color:var(--ink-2);}
   .warn{font-size:11.5px;line-height:1.6;margin:10px 0 0;color:var(--danger);}
   .warn[hidden]{display:none;}
 
   .chips{display:flex;flex-wrap:wrap;gap:7px;}
   .chips:not(:empty){margin-bottom:10px;}
   .chip{display:inline-flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);
-    border-radius:999px;padding:6px 8px 6px 13px;font-size:12px;font-weight:600;cursor:pointer;
+    border-radius:0;padding:6px 8px 6px 13px;font-size:12px;font-weight:600;cursor:pointer;
     transition:border-color .14s var(--ease),transform .12s;}
   .chip:hover{border-color:var(--ink-2);transform:translateY(-1px);}
-  .chip__dot{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);}
-  .chip__x{width:18px;height:18px;border-radius:50%;background:var(--panel-3);color:var(--ink-3);
+  .chip__dot{width:11px;height:11px;border-radius:0;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);}
+  .chip__x{width:18px;height:18px;border-radius:0;background:var(--panel-3);color:var(--ink-3);
     display:grid;place-items:center;font-size:13px;line-height:1;flex:none;transition:background .14s,color .14s;}
   .chip__x:hover{background:var(--danger);color:#fff;}
+  .chip--fix{background:var(--panel);border-color:var(--ink);padding-right:13px;}
+  .chip--fix:hover{background:var(--ink);color:#fff;}
+  .chips__t{width:100%;font-size:10.5px;font-weight:700;letter-spacing:.14em;
+    color:var(--ink-3);margin:2px 0 -2px;}
   .empty{font-size:11.5px;color:var(--ink-3);line-height:1.5;margin:0 0 10px;}
 
-  .form{border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel-2);padding:12px;margin-bottom:10px;}
+  .form{border:1px solid var(--line);border-radius:0;background:var(--panel-2);padding:12px;margin-bottom:10px;}
   .form[hidden]{display:none;}
   .form__btns{display:flex;gap:7px;justify-content:flex-end;margin-top:12px;}
   .form__btns .act{flex:none;height:34px;padding:0 16px;font-size:12px;}
@@ -232,6 +278,8 @@
   #paper *{margin:0;padding:0;}
   #sheet{position:relative;z-index:1;}
   #paper.ratio{display:flex;flex-direction:column;justify-content:center;}
+  /* A5 는 책 한 쪽이라 글이 위에서부터 시작한다 (다른 비율은 가운데) */
+  #paper.ratio.book{justify-content:flex-start;}
 
   .p-title{display:block;font-family:var(--title-font,inherit);font-size:var(--title-size,32px);
     font-weight:700;color:var(--title-color,#1a1a1a);line-height:1.3;
@@ -270,6 +318,14 @@
   .p-hl1{background-color:var(--hl1);color:var(--hl1-ink,inherit);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
   .p-hl2{background-color:var(--hl2);color:var(--hl2-ink,inherit);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
   .p-hl3{background-color:var(--hl3);color:var(--hl3-ink,inherit);-webkit-box-decoration-break:clone;box-decoration-break:clone;}
+  /* 밑줄형 형광펜 — 글자 아래쪽만 칠한다 */
+  .p-hb1,.p-hb2,.p-hb3{-webkit-box-decoration-break:clone;box-decoration-break:clone;
+    background-repeat:no-repeat;background-position:left bottom;
+    background-size:100% var(--hlband,55%);}
+  .p-hb1{background-image:linear-gradient(var(--hl1),var(--hl1));}
+  .p-hb2{background-image:linear-gradient(var(--hl2),var(--hl2));}
+  .p-hb3{background-image:linear-gradient(var(--hl3),var(--hl3));}
+
   .p-em1{color:var(--em1);}
   .p-em2{color:var(--em2);}
   .p-em3{color:var(--em3);}
@@ -285,6 +341,7 @@
     #stage{max-width:none;}
     .edit{order:2;border-right:none;overflow-y:auto;-webkit-overflow-scrolling:touch;}
     .head{position:sticky;top:0;z-index:20;background:var(--panel);}
+    .tabs{top:var(--head-h);}
     .scroll{flex:none;overflow:visible;padding-bottom:84px;}
     #src{height:140px;}
     .bar{position:fixed;left:0;right:0;bottom:0;z-index:50;
@@ -314,6 +371,10 @@
         <button class="tool" type="button" data-w="~~" title="형광펜 2"><span class="tool__bar" id="tb2"></span></button>
         <button class="tool" type="button" data-w="%%" title="형광펜 3"><span class="tool__bar" id="tb3"></span></button>
         <span class="tools__div"></span>
+        <button class="tool" type="button" data-w="++" title="밑줄형 형광펜 1"><span class="tool__half" id="th1"></span></button>
+        <button class="tool" type="button" data-w="^^" title="밑줄형 형광펜 2"><span class="tool__half" id="th2"></span></button>
+        <button class="tool" type="button" data-w="##" title="밑줄형 형광펜 3"><span class="tool__half" id="th3"></span></button>
+        <span class="tools__div"></span>
         <button class="tool" type="button" data-w="!!" title="강조색 1"><span class="tool__dot" id="td1"></span></button>
         <button class="tool" type="button" data-w="@@" title="강조색 2"><span class="tool__dot" id="td2"></span></button>
         <button class="tool" type="button" data-w="$$" title="강조색 3"><span class="tool__dot" id="td3"></span></button>
@@ -332,146 +393,28 @@
         <input type="text" id="title" placeholder="장면 제목">
       </div>
 
-      <div class="foldbar"><button class="mini" id="foldAll" type="button">모두 접기</button></div>
-      <details class="fold" id="fold0">
-        <summary>인물<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="fold__b">
-      <p class="empty" id="charEmpty">이름과 색상 등록이 가능합니다</p>
-      <div class="chips" id="charList"></div>
-      <div class="form" id="charForm" hidden>
-        <div class="fld">
-          <div class="lab">이름</div>
-          <input type="text" id="chName" maxlength="24" placeholder="만약">
+      <section class="pre">
+        <div class="pre__head">
+          <span class="sec__t">프리셋</span>
+          <button class="mini" id="preSave" type="button" title="지금 설정을 저장 (내용·인물은 빼고)">＋ 저장</button>
+          <button class="mini" id="preImport" type="button">가져오기</button>
+          <button class="mini" id="preExport" type="button">내보내기</button>
         </div>
-        <div class="fld" style="margin-top:12px">
-          <div class="lab">색</div>
-          <div class="c__box">
-            <input type="color" id="chColor" value="#2d4a3e">
-            <input class="c__hex" type="text" id="chColorT" value="#2d4a3e">
-          </div>
+        <div class="pre__row">
+          <div class="chips" id="preFixed"></div>
+          <div class="chips" id="preList"></div>
         </div>
-        <div class="form__btns">
-          <button class="act act--sub" id="chDel" type="button" style="color:var(--danger);border-color:var(--danger);margin-right:auto">삭제</button>
-          <button class="act act--sub" id="chCancel" type="button">취소</button>
-          <button class="act act--go" id="chSave" type="button">저장</button>
-        </div>
-      </div>
-      <button class="act act--sub btn-full" id="chAdd" type="button">＋ 인물 추가</button>
-      <label class="sw" style="margin-top:12px">
-        <span class="sw__t"><b>대사에도 인물 색</b></span>
-        <input type="checkbox" id="charTint">
-      </label>
-        </div>
-      </details>
-      <details class="fold" id="fold1">
-        <summary>이름 칸<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="fold__b">
-      <div class="fld">
-        <div class="lab">칸 너비</div>
-        <div class="seg" id="segNameCol">
-          <button type="button" data-v="auto" aria-pressed="true">가장 긴 이름에 맞춤</button>
-          <button type="button" data-v="fix" aria-pressed="false">직접 지정</button>
-        </div>
-      </div>
-      <div class="row" style="margin-top:14px">
-        <div class="fld" id="fldNameW" style="display:none">
-          <div class="lab">너비</div>
-          <div class="step" data-for="nameW"><b>−</b><span class="n"></span><input type="range" id="nameW" min="2" max="20" step="0.5" value="7"><b>+</b></div>
-        </div>
-        <div class="fld">
-          <div class="lab">이름 ↔ 대사</div>
-          <div class="step" data-for="colGap"><b>−</b><span class="n"></span><input type="range" id="colGap" min="0" max="120" step="2" value="28"><b>+</b></div>
-        </div>
-      </div>
-      <div class="row" style="margin-top:14px">
-        <div class="fld">
-          <div class="lab">이름 정렬</div>
-          <div class="seg" id="segNameAlign">
-            <button type="button" data-v="left" aria-pressed="true">왼쪽</button>
-            <button type="button" data-v="right" aria-pressed="false">오른쪽</button>
-          </div>
-        </div>
-        <div class="fld">
-          <div class="lab">이름 굵기</div>
-          <div class="seg" id="segNameWeight">
-            <button type="button" data-v="400" aria-pressed="false">보통</button>
-            <button type="button" data-v="700" aria-pressed="true">굵게</button>
-          </div>
-        </div>
-      </div>
-      <label class="sw" style="margin-top:14px">
-        <span class="sw__t"><b>정렬선 보기</b><span>편집창에서만 확인 가능하며 저장 이미지에선 뜨지 않습니다</span></span>
-        <input type="checkbox" id="guide" checked>
-      </label>
-        </div>
-      </details>
-      <details class="fold" id="fold2">
-        <summary>인용선<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="fold__b">
-      <div class="fld">
-        <div class="lab">위치</div>
-        <div class="seg" id="segQuote">
-          <button type="button" data-v="left" aria-pressed="true">왼쪽</button>
-          <button type="button" data-v="right" aria-pressed="false">오른쪽</button>
-        </div>
-      </div>
-      <div id="quoteOpts">
-        <div class="row" style="margin-top:14px">
-          <div class="fld">
-            <div class="lab">두께</div>
-            <div class="step" data-for="quoteW"><b>−</b><span class="n"></span><input type="range" id="quoteW" min="1" max="16" step="1" value="3"><b>+</b></div>
-          </div>
-          <div class="fld">
-            <div class="lab">선 ↔ 글</div>
-            <div class="step" data-for="quoteGap"><b>−</b><span class="n"></span><input type="range" id="quoteGap" min="0" max="60" step="1" value="14"><b>+</b></div>
-          </div>
-        </div>
-        <div class="fld" style="margin-top:14px">
-          <div class="lab">선 색</div>
-          <div class="c__box">
-            <input type="color" id="cQuote" value="#c8cfc0">
-            <input class="c__hex" type="text" id="cQuoteT" value="#c8cfc0">
-          </div>
-        </div>
-        <div class="fld" style="margin-top:14px">
-          <div class="lab">글자색 <span class="note">&gt; 줄 안쪽</span></div>
-          <div class="c__box">
-            <input type="color" id="cQInk" value="#1a1a1a">
-            <input class="c__hex" type="text" id="cQInkT" value="#1a1a1a">
-          </div>
-        </div>
-        <label class="sw" style="margin-top:12px">
-          <span class="sw__t"><b>대사에도 자동으로</b></span>
-          <input type="checkbox" id="quoteAuto">
-        </label>
-        <label class="sw" style="margin-top:10px">
-          <span class="sw__t"><b>인물 색으로</b></span>
-          <input type="checkbox" id="quoteChar">
-        </label>
-        <p class="hint">이어진 <code>&gt;</code> 줄은 선 하나로 묶입니다</p>
-      </div>
-        </div>
-      </details>
-      <details class="fold" id="fold3">
-        <summary>들여쓰기<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="fold__b">
-      <div class="fld">
-        <div class="seg seg--wrap seg--half" id="segDirInd">
-          <button type="button" data-v="none" aria-pressed="true">없음</button>
-          <button type="button" data-v="first" aria-pressed="false">첫 줄만</button>
-          <button type="button" data-v="col" aria-pressed="false">대사 칸에 맞춤</button>
-          <button type="button" data-v="all" aria-pressed="false">전체</button>
-        </div>
-      </div>
-      <div class="fld" id="fldDirInd" style="margin-top:14px;display:none">
-        <div class="lab">들여쓸 만큼</div>
-        <div class="step" data-for="dirInd"><b>−</b><span class="n"></span><input type="range" id="dirInd" min="0" max="300" step="2" value="20"><b>+</b></div>
-      </div>
-        </div>
-      </details>
-      <details class="fold" id="fold4" open>
-        <summary>글자<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="fold__b">
+        <p class="empty" id="preEmpty">내용·인물 제외 설정만 저장</p>
+      </section>
+
+      <nav class="tabs" role="tablist" aria-label="설정">
+        <button class="tab" type="button" role="tab" data-tab="t-type" aria-selected="true">글자</button>
+        <button class="tab" type="button" role="tab" data-tab="t-lay"  aria-selected="false">배치</button>
+        <button class="tab" type="button" role="tab" data-tab="t-col"  aria-selected="false">색</button>
+        <button class="tab" type="button" role="tab" data-tab="t-pap"  aria-selected="false">종이</button>
+        <button class="tab" type="button" role="tab" data-tab="t-chr"  aria-selected="false">인물</button>
+      </nav>
+      <div class="tabp" id="t-type" role="tabpanel">
       <div class="row">
         <div class="fld">
           <div class="lab">글꼴</div>
@@ -515,11 +458,10 @@
           <button type="button" data-v="break-all" aria-pressed="false">글자 단위</button>
         </div>
       </div>
-        </div>
-      </details>
-      <details class="fold" id="fold5">
-        <summary>간격<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="fold__b">
+      </div>
+      <div class="tabp" id="t-lay" role="tabpanel" hidden>
+        <div class="grp">
+          <h4 class="sec__t">간격</h4>
       <div class="row">
         <div class="fld">
           <div class="lab">대사 ↔ 번역</div>
@@ -541,10 +483,112 @@
         </div>
       </div>
         </div>
-      </details>
-      <details class="fold" id="fold6">
-        <summary>색<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="fold__b">
+        <div class="grp">
+          <h4 class="sec__t">이름 칸</h4>
+      <div class="fld">
+        <div class="lab">칸 너비</div>
+        <div class="seg" id="segNameCol">
+          <button type="button" data-v="auto" aria-pressed="true">가장 긴 이름에 맞춤</button>
+          <button type="button" data-v="fix" aria-pressed="false">직접 지정</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <div class="fld" id="fldNameW" style="display:none">
+          <div class="lab">너비</div>
+          <div class="step" data-for="nameW"><b>−</b><span class="n"></span><input type="range" id="nameW" min="2" max="20" step="0.5" value="7"><b>+</b></div>
+        </div>
+        <div class="fld">
+          <div class="lab">이름 ↔ 대사</div>
+          <div class="step" data-for="colGap"><b>−</b><span class="n"></span><input type="range" id="colGap" min="0" max="120" step="2" value="28"><b>+</b></div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <div class="fld">
+          <div class="lab">이름 정렬</div>
+          <div class="seg" id="segNameAlign">
+            <button type="button" data-v="left" aria-pressed="true">왼쪽</button>
+            <button type="button" data-v="right" aria-pressed="false">오른쪽</button>
+          </div>
+        </div>
+        <div class="fld">
+          <div class="lab">이름 굵기</div>
+          <div class="seg" id="segNameWeight">
+            <button type="button" data-v="400" aria-pressed="false">보통</button>
+            <button type="button" data-v="700" aria-pressed="true">굵게</button>
+          </div>
+        </div>
+      </div>
+      <label class="sw" style="margin-top:14px">
+        <span class="sw__t"><b>정렬선 보기</b><span>편집창에서만 확인 가능하며 저장 이미지에선 뜨지 않습니다</span></span>
+        <input type="checkbox" id="guide" checked>
+      </label>
+        </div>
+        <details class="more">
+          <summary>더 보기</summary>
+        <div class="grp">
+          <h4 class="sec__t">들여쓰기</h4>
+      <div class="fld">
+        <div class="seg seg--wrap seg--half" id="segDirInd">
+          <button type="button" data-v="none" aria-pressed="true">없음</button>
+          <button type="button" data-v="first" aria-pressed="false">첫 줄만</button>
+          <button type="button" data-v="col" aria-pressed="false">대사 칸에 맞춤</button>
+          <button type="button" data-v="all" aria-pressed="false">전체</button>
+        </div>
+      </div>
+      <div class="fld" id="fldDirInd" style="margin-top:14px;display:none">
+        <div class="lab">들여쓸 만큼</div>
+        <div class="step" data-for="dirInd"><b>−</b><span class="n"></span><input type="range" id="dirInd" min="0" max="300" step="2" value="20"><b>+</b></div>
+      </div>
+        </div>
+        <div class="grp">
+          <h4 class="sec__t">인용선</h4>
+      <div class="fld">
+        <div class="lab">위치</div>
+        <div class="seg" id="segQuote">
+          <button type="button" data-v="left" aria-pressed="true">왼쪽</button>
+          <button type="button" data-v="right" aria-pressed="false">오른쪽</button>
+        </div>
+      </div>
+      <div id="quoteOpts">
+        <div class="row" style="margin-top:14px">
+          <div class="fld">
+            <div class="lab">두께</div>
+            <div class="step" data-for="quoteW"><b>−</b><span class="n"></span><input type="range" id="quoteW" min="1" max="16" step="1" value="3"><b>+</b></div>
+          </div>
+          <div class="fld">
+            <div class="lab">선 ↔ 글</div>
+            <div class="step" data-for="quoteGap"><b>−</b><span class="n"></span><input type="range" id="quoteGap" min="0" max="60" step="1" value="14"><b>+</b></div>
+          </div>
+        </div>
+        <div class="fld" style="margin-top:14px">
+          <div class="lab">선 색</div>
+          <div class="c__box">
+            <input type="color" id="cQuote" value="#c8cfc0">
+            <input class="c__hex" type="text" id="cQuoteT" value="#c8cfc0">
+          </div>
+        </div>
+        <div class="fld" style="margin-top:14px">
+          <div class="lab">글자색 <span class="note">&gt; 줄 안쪽</span></div>
+          <div class="c__box">
+            <input type="color" id="cQInk" value="#1a1a1a">
+            <input class="c__hex" type="text" id="cQInkT" value="#1a1a1a">
+          </div>
+        </div>
+        <label class="sw" style="margin-top:12px">
+          <span class="sw__t"><b>대사에도 자동으로</b></span>
+          <input type="checkbox" id="quoteAuto">
+        </label>
+        <label class="sw" style="margin-top:10px">
+          <span class="sw__t"><b>인물 색으로</b></span>
+          <input type="checkbox" id="quoteChar">
+        </label>
+        <p class="hint">이어진 <code>&gt;</code> 줄은 선 하나로 묶입니다</p>
+      </div>
+        </div>
+
+        </details>
+      </div>
+      <div class="tabp" id="t-col" role="tabpanel" hidden>
       <div class="cgrid">
         <div class="c"><label>배경</label><div class="c__box"><input type="color" id="cBg" value="#ffffff"><input class="c__hex" type="text" id="cBgT" value="#ffffff"></div></div>
         <div class="c"><label>대사</label><div class="c__box"><input type="color" id="cFg" value="#1a1a1a"><input class="c__hex" type="text" id="cFgT" value="#1a1a1a"></div></div>
@@ -561,11 +605,13 @@
         <div class="c"><label>강조 2</label><div class="c__box"><input type="color" id="cEm2" value="#3c5f8a"><input class="c__hex" type="text" id="cEm2T" value="#3c5f8a"></div></div>
         <div class="c"><label>강조 3</label><div class="c__box"><input type="color" id="cEm3" value="#a8443c"><input class="c__hex" type="text" id="cEm3T" value="#a8443c"></div></div>
       </div>
-        </div>
-      </details>
-      <details class="fold" id="fold7" open>
-        <summary>종이<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="fold__b">
+      <div class="fld" style="margin-top:14px">
+        <div class="lab">밑줄형 형광펜 두께</div>
+        <div class="step" data-for="hlBand"><b>−</b><span class="n"></span><input type="range" id="hlBand" min="20" max="100" step="5" value="55"><b>+</b></div>
+      </div>
+      <p class="hint">형광펜은 두 가지예요. 글자를 꽉 채우는 쪽과, 아래쪽만 칠하는 쪽.</p>
+      </div>
+      <div class="tabp" id="t-pap" role="tabpanel" hidden>
       <div class="fld">
         <div class="lab">세로 길이</div>
         <div class="seg" id="segFit">
@@ -576,6 +622,7 @@
       <div class="fld" id="fldRatio" style="margin-top:14px;display:none">
         <div class="lab">비율</div>
         <div class="seg seg--wrap" id="segRatio">
+          <button type="button" data-v="148:210" aria-pressed="false">A5</button>
           <button type="button" data-v="1:1" aria-pressed="false">1:1</button>
           <button type="button" data-v="4:5" aria-pressed="true">4:5</button>
           <button type="button" data-v="3:4" aria-pressed="false">3:4</button>
@@ -609,25 +656,9 @@
           <div class="step" data-for="tg"><b>−</b><span class="n"></span><input type="range" id="tg" min="0" max="120" step="2" value="28"><b>+</b></div>
         </div>
       </div>
-        </div>
-      </details>
-      <details class="fold" id="fold8">
-        <summary>프리셋<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="fold__b">
-      <p class="empty" id="preEmpty">내용·인물 제외 설정만 저장</p>
-      <div class="chips" id="preList"></div>
-      <button class="act act--sub btn-full" id="preSave" type="button">＋ 현재 설정 저장</button>
-      <div class="row" style="margin-top:8px">
-        <button class="act act--sub" id="preExport" type="button" style="height:36px;font-size:12px">내보내기</button>
-        <button class="act act--sub" id="preImport" type="button" style="height:36px;font-size:12px">가져오기</button>
-      </div>
-        </div>
-      </details>
-      <details class="fold" id="fold9">
-        <summary>저장(해상도)<svg class="fold__c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
-        <div class="fold__b">
+        <div class="grp">
+          <h4 class="sec__t">저장 해상도</h4>
       <div class="fld">
-        <div class="lab">해상도</div>
         <div class="seg" id="segScale">
           <button type="button" data-v="1" aria-pressed="false">1배</button>
           <button type="button" data-v="2" aria-pressed="true">2배</button>
@@ -635,9 +666,36 @@
         </div>
       </div>
         </div>
-      </details>
+      </div>
+      <div class="tabp" id="t-chr" role="tabpanel" hidden>
+      <p class="empty" id="charEmpty">이름과 색상 등록이 가능합니다</p>
+      <div class="chips" id="charList"></div>
+      <div class="form" id="charForm" hidden>
+        <div class="fld">
+          <div class="lab">이름</div>
+          <input type="text" id="chName" maxlength="24" placeholder="만약">
+        </div>
+        <div class="fld" style="margin-top:12px">
+          <div class="lab">색</div>
+          <div class="c__box">
+            <input type="color" id="chColor" value="#2d4a3e">
+            <input class="c__hex" type="text" id="chColorT" value="#2d4a3e">
+          </div>
+        </div>
+        <div class="form__btns">
+          <button class="act act--sub" id="chDel" type="button" style="color:var(--danger);border-color:var(--danger);margin-right:auto">삭제</button>
+          <button class="act act--sub" id="chCancel" type="button">취소</button>
+          <button class="act act--go" id="chSave" type="button">저장</button>
+        </div>
+      </div>
+      <button class="act act--sub btn-full" id="chAdd" type="button">＋ 인물 추가</button>
+      <label class="sw" style="margin-top:12px">
+        <span class="sw__t"><b>대사에도 인물 색</b></span>
+        <input type="checkbox" id="charTint">
+      </label>
+      </div>
 
-      <button class="act act--sub btn-full" id="reset" type="button" style="margin-top:20px;color:var(--danger);border-color:var(--danger)">모두 처음 상태로</button>
+      <div class="resetrow"><button class="mini mini--danger" id="reset" type="button">모두 처음 상태로</button></div>
     </div>
 
     <div class="bar">
@@ -665,6 +723,10 @@
   <button class="tool" type="button" data-w="==" title="형광펜 1"><span class="tool__bar" id="fb1"></span></button>
   <button class="tool" type="button" data-w="~~" title="형광펜 2"><span class="tool__bar" id="fb2"></span></button>
   <button class="tool" type="button" data-w="%%" title="형광펜 3"><span class="tool__bar" id="fb3"></span></button>
+  <span class="tools__div"></span>
+  <button class="tool" type="button" data-w="++" title="밑줄형 형광펜 1"><span class="tool__half" id="fh1"></span></button>
+  <button class="tool" type="button" data-w="^^" title="밑줄형 형광펜 2"><span class="tool__half" id="fh2"></span></button>
+  <button class="tool" type="button" data-w="##" title="밑줄형 형광펜 3"><span class="tool__half" id="fh3"></span></button>
   <span class="tools__div"></span>
   <button class="tool" type="button" data-w="!!" title="강조색 1"><span class="tool__dot" id="fd1"></span></button>
   <button class="tool" type="button" data-w="@@" title="강조색 2"><span class="tool__dot" id="fd2"></span></button>
@@ -703,10 +765,10 @@ Object.keys(segs).forEach(function(id){
 });
 
 /* ===================== 스테퍼 ===================== */
-var STEP_IDS=['size','ls','lh','stretch','rowGap','sayGap','dirGap','paraGap','colGap','nameW','dirInd','quoteW','quoteGap',
+var STEP_IDS=['size','ls','lh','stretch','rowGap','sayGap','dirGap','paraGap','colGap','nameW','dirInd','quoteW','quoteGap','hlBand',
               'pw','padX','padY','ts','tg'];
 var UNITS={size:'px',ls:'',lh:'',stretch:'%',rowGap:'px',sayGap:'px',dirGap:'px',paraGap:'px',
-           colGap:'px',nameW:'',dirInd:'px',quoteW:'px',quoteGap:'px',pw:'px',padX:'px',padY:'px',ts:'px',tg:'px'};
+           colGap:'px',nameW:'',dirInd:'px',quoteW:'px',quoteGap:'px',pw:'px',padX:'px',padY:'px',ts:'px',tg:'px',hlBand:'%'};
 function shown(id){
   var v=parseFloat($(id).value);
   if(id==='lh') return (v/10).toFixed(1);
@@ -808,6 +870,9 @@ function swatches(){
     var dot=$('td'+i); if(dot) dot.style.background=emv;
     var fbb=$('fb'+i); if(fbb) fbb.style.background=hlv;
     var fbd=$('fd'+i); if(fbd) fbd.style.background=emv;
+    var g='linear-gradient('+hlv+','+hlv+')';
+    var th=$('th'+i); if(th) th.style.backgroundImage=g;
+    var fh=$('fh'+i); if(fh) fh.style.backgroundImage=g;
   }
 }
 ['Bg','Fg','Name','Tr','Dir','Title'].forEach(function(k){ linkColor('c'+k,'c'+k+'T'); });
@@ -832,7 +897,7 @@ function wrapSel(m){
   }
   render(); save();
 }
-var MARK_RE=/\*\*|\/\/|__|==|~~|%%|!!|@@|\$\$/g;
+var MARK_RE=/\*\*|\/\/|__|==|~~|%%|\+\+|\^\^|##|!!|@@|\$\$/g;
 function clearSel(){
   var s=src.selectionStart, e=src.selectionEnd;
   if(s===e){ return; }
@@ -1000,10 +1065,11 @@ function lumOf(hex){
   return 0.2126*_lin((n>>16)&255) + 0.7152*_lin((n>>8)&255) + 0.0722*_lin(n&255);
 }
 function contrast(a,b){ return (Math.max(a,b)+0.05)/(Math.min(a,b)+0.05); }
-function strip(s){ return String(s).replace(/^\s*>\s?/,'').replace(/\*\*|\/\/|__|==|~~|%%|!!|@@|\$\$/g,''); }
+function strip(s){ return String(s).replace(/^\s*>\s?/,'').replace(/\*\*|\/\/|__|==|~~|%%|\+\+|\^\^|##|!!|@@|\$\$/g,''); }
 var MARKS=[
   [/\*\*([^*]+?)\*\*/g,'p-b'], [/\/\/([^/]+?)\/\//g,'p-i'], [/__([^_]+?)__/g,'p-u'],
   [/==([^=]+?)==/g,'p-hl1'], [/~~([^~]+?)~~/g,'p-hl2'], [/%%([^%]+?)%%/g,'p-hl3'],
+  [/\+\+([^+]+?)\+\+/g,'p-hb1'], [/\^\^([^^]+?)\^\^/g,'p-hb2'], [/##([^#]+?)##/g,'p-hb3'],
   [/!!([^!]+?)!!/g,'p-em1'], [/@@([^@]+?)@@/g,'p-em2'], [/\$\$([^$]+?)\$\$/g,'p-em3']
 ];
 function inline(s){
@@ -1153,6 +1219,7 @@ function render(){
     s.setProperty('--hl'+i+'-ink', contrast(L,1) > contrast(L,bodyL) ? '#ffffff' : 'inherit');
     s.setProperty('--em'+i, $('cEm'+i).value);
   });
+  s.setProperty('--hlband', (+$('hlBand').value)+'%');
 
   var title=$('title').value.trim();
   paper.innerHTML='<div id="sheet">'+
@@ -1170,6 +1237,7 @@ function render(){
     var h=Math.round(pw*(+p[1])/(+p[0]));
     paper.style.height=h+'px';
     paper.classList.add('ratio');
+    paper.classList.toggle('book', segs.segRatio==='148:210');
     var over=sheet.scrollHeight-(h-padY*2);
     if(over>0){
       warn.textContent='글이 '+Math.ceil(over)+'px 넘쳐요';
@@ -1178,6 +1246,7 @@ function render(){
   } else {
     paper.style.height='';
     paper.classList.remove('ratio');
+    paper.classList.remove('book');
     warn.hidden=true;
   }
 
@@ -1198,29 +1267,38 @@ function drawGuide(){
 }
 $('guide').addEventListener('change', function(){ render(); save(); });
 
-/* ===================== 접은글 ===================== */
-var folds=[].slice.call(document.querySelectorAll('details.fold'));
-function foldState(){ return folds.map(function(d){ return d.open; }); }
-function setFolds(a){
-  if(!Array.isArray(a)) return;
-  folds.forEach(function(d,i){ if(typeof a[i]==='boolean') d.open=a[i]; });
-  syncFoldAll();
+/* ===================== 탭 ===================== */
+var tabs=[].slice.call(document.querySelectorAll('.tab'));
+var curTab='t-type';
+function showTab(id){
+  if(!$(id)) return;
+  curTab=id;
+  tabs.forEach(function(t){
+    var on=t.getAttribute('data-tab')===id;
+    t.setAttribute('aria-selected', on?'true':'false');
+    t.tabIndex=on?0:-1;
+  });
+  document.querySelectorAll('.tabp').forEach(function(p){ p.hidden=(p.id!==id); });
 }
-function syncFoldAll(){
-  var anyOpen=folds.some(function(d){ return d.open; });
-  $('foldAll').textContent = anyOpen ? '모두 접기' : '모두 펼치기';
-}
-folds.forEach(function(d){
-  d.addEventListener('toggle', function(){
-    syncFoldAll();
-    save();
+tabs.forEach(function(t,i){
+  t.addEventListener('click', function(){ showTab(t.getAttribute('data-tab')); save(); });
+  t.addEventListener('keydown', function(e){
+    var d = e.key==='ArrowRight' ? 1 : e.key==='ArrowLeft' ? -1 : 0;
+    if(!d) return;
+    e.preventDefault();
+    var n=tabs[(i+d+tabs.length)%tabs.length];
+    showTab(n.getAttribute('data-tab')); n.focus(); save();
   });
 });
-$('foldAll').addEventListener('click', function(){
-  var anyOpen=folds.some(function(d){ return d.open; });
-  folds.forEach(function(d){ d.open=!anyOpen; });
-  syncFoldAll(); save();
-});
+var mores=[].slice.call(document.querySelectorAll('details.more'));
+mores.forEach(function(d){ d.addEventListener('toggle', function(){ save(); }); });
+/* 예전 저장본(배열)은 무시하고, 지금은 보던 탭과 "더 보기" 상태만 기억한다 */
+function foldState(){ return { tab:curTab, more:mores.map(function(d){ return d.open; }) }; }
+function setFolds(a){
+  if(!a || Array.isArray(a)) return;
+  if(a.tab) showTab(a.tab);
+  if(Array.isArray(a.more)) mores.forEach(function(d,i){ if(typeof a.more[i]==='boolean') d.open=a.more[i]; });
+}
 
 /* ===================== 미리보기 축소 ===================== */
 var raf=0;
@@ -1275,6 +1353,20 @@ function shoot(cb){
         }
         bak.push([m, m.getAttribute('style')]);
         m.style.setProperty('background-color','transparent','important');
+      });
+      var band=(+$('hlBand').value)/100, pcs=getComputedStyle(paper);
+      [].forEach.call(paper.querySelectorAll('.p-hb1,.p-hb2,.p-hb3'), function(m){
+        var n=(m.className.match(/p-hb(\d)/)||[0,'1'])[1];
+        var col=(pcs.getPropertyValue('--hl'+n)||'').trim() || '#000000';
+        var rs=m.getClientRects();
+        for(var i=0;i<rs.length;i++){
+          var r=rs[i];
+          if(r.width>0 && r.height>0)
+            hl.push({x:r.left-pr.left, y:r.top-pr.top+r.height*(1-band),
+                     w:r.width, h:r.height*band, c:col});
+        }
+        bak.push([m, m.getAttribute('style')]);
+        m.style.setProperty('background-image','none','important');
       });
       paper.style.background='transparent';
 
@@ -1340,7 +1432,7 @@ $('copy').addEventListener('click', function(){
 
 /* ===================== 설정 저장 · 프리셋 ===================== */
 var KEY='logmaker-v4', PRE_KEY='geuk-presets-v3';
-var IDS=['title','font','size','ls','lh','stretch','rowGap','sayGap','dirGap','paraGap','colGap','nameW',
+var IDS=['title','font','size','ls','lh','stretch','rowGap','sayGap','dirGap','paraGap','colGap','nameW','hlBand',
          'dirInd','quoteW','quoteGap','pw','padX','padY','ts','tg','cQuote','cQuoteT','cQInk','cQInkT',
          'cBg','cBgT','cFg','cFgT','cName','cNameT','cTr','cTrT','cDir','cDirT','cTitle','cTitleT',
          'cHl1','cHl1T','cHl2','cHl2T','cHl3','cHl3T','cEm1','cEm1T','cEm2','cEm2T','cEm3','cEm3T'];
@@ -1387,6 +1479,50 @@ function load(){
 }
 function loadPresets(){ try{ var r=localStorage.getItem(PRE_KEY); return r?JSON.parse(r):[]; }catch(e){ return []; } }
 function savePresets(l){ try{ localStorage.setItem(PRE_KEY, JSON.stringify(l)); }catch(e){ alert('저장 공간이 부족해요'); } }
+/* 항상 들어 있는 기본 프리셋 — 지울 수 없다 */
+var FIXED_PRESETS=[
+{ name:'소설', data:{
+  v:{ font:'"Pretendard",sans-serif', size:'21', lh:'18', ls:'-1.3', stretch:'96',
+      rowGap:'0', sayGap:'6', dirGap:'10', paraGap:'20', colGap:'26',
+      nameW:'7', dirInd:'20', quoteW:'2', quoteGap:'16',
+      pw:'900', padX:'105', padY:'125', ts:'26', tg:'34', hlBand:'55',
+      cBg:'#ffffff', cBgT:'#ffffff', cFg:'#1f1d1a', cFgT:'#1f1d1a',
+      cName:'#1f1d1a', cNameT:'#1f1d1a', cTr:'#6b665e', cTrT:'#6b665e',
+      cDir:'#1f1d1a', cDirT:'#1f1d1a', cTitle:'#1f1d1a', cTitleT:'#1f1d1a',
+      cQuote:'#cfc9bd', cQuoteT:'#cfc9bd', cQInk:'#1f1d1a', cQInkT:'#1f1d1a' },
+  segs:{ segNameCol:'auto', segNameAlign:'left', segNameWeight:'400',
+         segAlign:'justify', segWb:'break-all', segDirInd:'none',
+         segQuote:'left', segFit:'ratio', segRatio:'148:210', segScale:'2' },
+  guide:true, charTint:false, quoteChar:false, quoteAuto:false } },
+
+{ name:'대본', data:{
+  v:{ font:'"Pretendard",sans-serif', size:'18', lh:'18', ls:'-1.3', stretch:'96',
+      rowGap:'2', sayGap:'14', dirGap:'14', paraGap:'24', colGap:'24',
+      nameW:'6', dirInd:'20', quoteW:'3', quoteGap:'14',
+      pw:'1000', padX:'90', padY:'85', ts:'24', tg:'30', hlBand:'55',
+      cBg:'#ffffff', cBgT:'#ffffff', cFg:'#17171a', cFgT:'#17171a',
+      cName:'#17171a', cNameT:'#17171a', cTr:'#71707a', cTrT:'#71707a',
+      cDir:'#17171a', cDirT:'#17171a', cTitle:'#17171a', cTitleT:'#17171a',
+      cQuote:'#d4d4da', cQuoteT:'#d4d4da', cQInk:'#17171a', cQInkT:'#17171a' },
+  segs:{ segNameCol:'auto', segNameAlign:'left', segNameWeight:'700',
+         segAlign:'left', segWb:'keep-all', segDirInd:'none',
+         segQuote:'left', segFit:'auto', segRatio:'4:5', segScale:'2' },
+  guide:true, charTint:false, quoteChar:false, quoteAuto:false } }
+];
+function renderFixed(){
+  var wrap=$('preFixed'); if(!wrap) return;
+  wrap.innerHTML='';
+  FIXED_PRESETS.forEach(function(p){
+    var chip=document.createElement('div');
+    chip.className='chip chip--fix'; chip.title='눌러서 불러오기';
+    chip.textContent=p.name;
+    chip.addEventListener('click', function(){
+      apply(JSON.parse(JSON.stringify(p.data)), PRE_IDS); render(); save();
+    });
+    wrap.appendChild(chip);
+  });
+}
+
 function renderPresets(){
   var wrap=$('preList'), list=loadPresets(); wrap.innerHTML='';
   $('preEmpty').style.display=list.length?'none':'';
@@ -1453,8 +1589,7 @@ $('reset').addEventListener('click', function(){
 
 /* ===================== 시작 ===================== */
 load();
-syncFoldAll();
-swatches(); segVis(); renderChars(); renderPresets(); render();
+swatches(); segVis(); renderChars(); renderFixed(); renderPresets(); render();
 if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ render(); }); }
 })();
 </script>
