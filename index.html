@@ -1177,7 +1177,9 @@ function build(){
   blocks.forEach(function(b){
     if(b.k==='gap'){ html+=sp(paraGap); prev='gap'; return; }
     if(prev!==null && prev!=='gap'){
-      if(b.k==='dir' || prev==='dir') html+=sp(dirGap);
+      // 이름 없이 쓴 대사 바로 밑의 (번역) 줄은 이름 있는 대사와 똑같이 붙인다
+      if(b.k==='dir' && b.r.tr && prev==='dir') html+=sp(rowGap);
+      else if(b.k==='dir' || prev==='dir') html+=sp(dirGap);
       else html+=sp(sayGap);
     }
     if(b.k==='dir'){ html+='<div class="p-dir'+dirCls+(b.r.tr?' p-tr':'')+'">'+inline(b.r.text)+'</div>'; prev='dir'; return; }
