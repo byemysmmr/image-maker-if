@@ -238,6 +238,17 @@
   .fbar .tools__div{margin:0 2px;height:16px;}
   .fbar .tool__bar{width:16px;height:12px;}
   .fbar .tool__dot{width:12px;height:12px;}
+  /* 폭 좁은 화면: 한 줄이면 화면 밖으로 나가므로 7칸 두 줄로 */
+  @media (max-width:560px){
+    .fbar{display:grid;grid-template-columns:repeat(7,36px);gap:3px;padding:5px;}
+    .fbar.on{display:grid;}
+    .fbar .tool{width:36px;height:34px;}
+    .fbar .tools__div{display:none;}
+    .fbar .tool[data-q]{order:1;}
+    .fbar .tool[data-w="++"],.fbar .tool[data-w="^^"],.fbar .tool[data-w="##"],
+    .fbar .tool[data-w="!!"],.fbar .tool[data-w="@@"],.fbar .tool[data-w="$$"]{order:2;}
+    .fbar .tool[data-clear]{order:3;}
+  }
 
   .foldbar{display:flex;justify-content:flex-end;margin:16px 0 8px;}
   .mini{border:1px solid var(--line);background:var(--panel);color:var(--ink-3);border-radius:0;
@@ -386,7 +397,7 @@
         <button class="tool" type="button" id="btnClear" title="서식 지우기"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 15.5H16"/><path d="M11.8 4.2 4.5 11.5a1.4 1.4 0 0 0 0 2l1.8 1.8h3.4l6.3-6.3a1.4 1.4 0 0 0 0-2l-2.2-2.8a1.4 1.4 0 0 0-2 0Z"/></svg></button>
       </div>
       <p class="hint">
-        글자 드래그 시 서식 막대가 뜹니다 버튼 클릭도 ok!<br>
+        글자 드래그 시 서식 막대가 뜹니다 (미리보기에서도 ok) 버튼 클릭도 ok!<br>
         <code>이름 | 대사</code> 를 적으면 이름이 왼쪽 열에 붙고 이름 없는 줄은 지문 형식으로 폭 전체를 사용해요!
       </p>
     </div>
@@ -921,24 +932,36 @@ function clearSel(){
 }
 document.querySelectorAll('.tool[data-w]').forEach(function(btn){
   btn.addEventListener('mousedown', function(e){ e.preventDefault(); });
-  btn.addEventListener('click', function(){ wrapSel(btn.getAttribute('data-w')); placeBar(); });
+  btn.addEventListener('click', function(){
+    if(viewOn()){ viewApply('wrap', btn.getAttribute('data-w')); return; }
+    wrapSel(btn.getAttribute('data-w')); placeBar();
+  });
 });
 document.querySelectorAll('.tool[data-clear]').forEach(function(btn){
   btn.addEventListener('mousedown', function(e){ e.preventDefault(); });
-  btn.addEventListener('click', function(){ clearSel(); placeBar(); });
+  btn.addEventListener('click', function(){
+    if(viewOn()){ viewApply('clear'); return; }
+    clearSel(); placeBar();
+  });
 });
 $('btnClear').addEventListener('mousedown', function(e){ e.preventDefault(); });
-$('btnClear').addEventListener('click', clearSel);
+$('btnClear').addEventListener('click', function(){
+  if(viewOn()){ viewApply('clear'); return; }
+  clearSel();
+});
 document.querySelectorAll('.tool[data-q]').forEach(function(btn){
   btn.addEventListener('mousedown', function(e){ e.preventDefault(); });
-  btn.addEventListener('click', function(){ $('btnQuote').click(); placeBar(); });
+  btn.addEventListener('click', function(){
+    if(viewOn()){ viewApply('quote'); return; }
+    $('btnQuote').click(); placeBar();
+  });
 });
 
 /* ===== 드래그한 자리에 뜨는 서식 막대 =====
    textarea 는 선택 영역의 좌표를 알려주지 않는다.
    그래서 같은 글꼴·폭을 가진 보이지 않는 사본에 같은 글을 넣고,
    선택 지점에 표식을 꽂아 그 위치를 재는 방식을 쓴다. */
-var fbar=$('fbar'), mirror=null;
+var fbar=$('fbar'), mirror=null, barSrc='text';
 function caretXY(pos){
   if(!mirror){
     mirror=document.createElement('div');
@@ -964,10 +987,12 @@ function caretXY(pos){
 function hideBar(){ fbar.classList.remove('on'); }
 function placeBar(){
   var s=src.selectionStart, e=src.selectionEnd;
-  if(s===e || document.activeElement!==src){ hideBar(); return; }
+  if(document.activeElement!==src){ if(barSrc==='text') hideBar(); return; }   // 미리보기 쪽 막대는 건드리지 않는다
+  if(s===e){ hideBar(); return; }
   var a=caretXY(s), b=caretXY(e);
   // 여러 줄이면 선택 시작 줄 위에 띄운다
   var anchorTop=a.top, anchorLeft=(a.top===b.top) ? (a.left+b.left)/2 : a.left;
+  barSrc='text';
   fbar.classList.add('on');
   var w=fbar.offsetWidth, hgt=fbar.offsetHeight;
   var left=anchorLeft-w/2;
@@ -982,9 +1007,252 @@ function placeBar(){
   src.addEventListener(ev, function(){ requestAnimationFrame(placeBar); });
 });
 src.addEventListener('scroll', placeBar);
-src.addEventListener('blur', function(){ setTimeout(function(){ if(document.activeElement!==src) hideBar(); }, 100); });
+src.addEventListener('blur', function(){ setTimeout(function(){ if(document.activeElement!==src && barSrc==='text') hideBar(); }, 100); });
 window.addEventListener('resize', hideBar);
 document.querySelector('.scroll').addEventListener('scroll', hideBar);
+
+/* ===== 미리보기에서 드래그해도 서식 막대 =====
+   미리보기 글자는 원문과 모양이 다르다 (이름표·서식 기호·따옴표가 빠져 있음).
+   그래서 줄마다 원문을 같은 순서로 다시 걸러 "보이는 글자 → 원문 위치" 표를 만들고,
+   고른 범위를 그 표로 원문 위치로 되돌려 서식 기호를 넣는다.
+   표로 만든 글자가 화면 글자와 하나라도 다르면 그 줄은 손대지 않는다. */
+function trimArr(a){
+  var i=0, j=a.length;
+  while(i<j && /\s/.test(a[i].c)) i++;
+  while(j>i && /\s/.test(a[j-1].c)) j--;
+  return a.slice(i,j);
+}
+function unquoteArr(a){
+  var t=trimArr(a);
+  if(t.length<2 || Q_OPEN.indexOf(t[0].c)<0 || Q_CLOSE.indexOf(t[t.length-1].c)<0) return a;
+  t=t.slice(1,-1);
+  var out=[], i=0;
+  while(i<t.length){
+    if(Q_CLOSE.indexOf(t[i].c)>=0){
+      var j=i+1; while(j<t.length && /\s/.test(t[j].c)) j++;
+      if(j>i+1 && j<t.length && Q_OPEN.indexOf(t[j].c)>=0){ out.push({c:' ', i:t[i+1].i, m:0}); i=j+1; continue; }
+    }
+    out.push(t[i]); i++;
+  }
+  return trimArr(out);
+}
+function marksArr(a, dead){
+  MARKS.forEach(function(mk, mi){
+    var str=a.map(function(o){ return o.c; }).join('');
+    str.replace(mk[0], function(match, inner, off){
+      var L=(match.length-inner.length)/2;
+      for(var k=0;k<L;k++){ a[off+k].ph=1; a[off+match.length-1-k].ph=1; }
+      for(var q=off+L;q<off+match.length-L;q++) a[q].m|=(1<<mi);
+      return match;
+    });
+    a.forEach(function(o){ if(o.ph) o.c='\uE000'; });
+  });
+  return a.filter(function(o){ if(o.ph && dead) dead[o.i]=1; return !o.ph; });
+}
+function rowMap(r, el){
+  if(!r || typeof r.raw!=='string') return null;
+  var a=[], dead={};
+  for(var k=0;k<r.raw.length;k++){ var ch=r.raw.charAt(k); if(!PH_RE.test(ch)) a.push({c:ch, i:r.from+k, m:0}); PH_RE.lastIndex=0; }
+  if(r.trim) a=trimArr(a);
+  if(r.uq) a=unquoteArr(a);
+  if($('smartQ') && $('smartQ').checked){   // 그리는 쪽과 같은 순서: 둥근 따옴표 → 서식 기호
+    var sq=smartq(a.map(function(o){ return o.c; }).join(''));
+    if(sq.length===a.length) a=a.map(function(o,k){ return {c:sq.charAt(k), i:o.i, m:0}; });
+  }
+  a=marksArr(a, dead);
+  var plain=a.map(function(o){ return o.c; }).join('');
+  if(el && plain!==el.textContent) return null;
+  return { r:r, plain:plain, map:a.map(function(o){ return o.i; }), raw:a.map(function(o){ return r.raw.charAt(o.i-r.from); }),
+           sets:a.map(function(o){ return o.m; }), dead:dead };
+}
+function plainOff(el, node, off){
+  var rg=document.createRange(); rg.selectNodeContents(el);
+  try{ rg.setEnd(node, off); }catch(e){ return 0; }
+  return rg.toString().length;
+}
+function viewSelection(){
+  var sel=window.getSelection();
+  if(!sel || !sel.rangeCount || sel.isCollapsed) return null;
+  var rg=sel.getRangeAt(0);
+  if(!paper.contains(rg.commonAncestorContainer)) return null;
+  var segs=[];
+  [].forEach.call(paper.querySelectorAll('[data-r]'), function(el){
+    if(!rg.intersectsNode(el)) return;
+    var r=VIEW_ROWS[+el.getAttribute('data-r')], mp=rowMap(r, el);
+    if(!mp || !mp.plain.length) return;
+    var ps=(el===rg.startContainer || el.contains(rg.startContainer)) ? plainOff(el, rg.startContainer, rg.startOffset) : 0;
+    var pe=(el===rg.endContainer   || el.contains(rg.endContainer))   ? plainOff(el, rg.endContainer,   rg.endOffset)   : mp.plain.length;
+    while(ps<pe && /\s/.test(mp.plain.charAt(ps))) ps++;
+    while(pe>ps && /\s/.test(mp.plain.charAt(pe-1))) pe--;
+    if(pe<=ps) return;
+    segs.push({ r:r.i, ps:ps, pe:pe, s:mp.map[ps], e:mp.map[pe-1]+1, mp:mp });
+  });
+  return segs.length ? segs : null;
+}
+function viewOn(){ return barSrc==='view' && fbar.classList.contains('on') && !!viewSelection(); }
+
+function domPoint(el, idx){
+  var w=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), n, last=null;
+  while((n=w.nextNode())){
+    last=n;
+    if(idx<=n.length) return { node:n, off:idx };
+    idx-=n.length;
+  }
+  return last ? { node:last, off:last.length } : { node:el, off:0 };
+}
+function restoreView(segs){
+  if(!segs || !segs.length) return;
+  var a=paper.querySelector('[data-r="'+segs[0].r+'"]'),
+      b=paper.querySelector('[data-r="'+segs[segs.length-1].r+'"]');
+  if(!a || !b){ hideBar(); return; }
+  var p1=domPoint(a, segs[0].ps), p2=domPoint(b, segs[segs.length-1].pe);
+  var rg=document.createRange();
+  try{ rg.setStart(p1.node, p1.off); rg.setEnd(p2.node, p2.off); }catch(e){ hideBar(); return; }
+  var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(rg);
+  placeViewBar();
+}
+function placeViewBar(){
+  var sel=window.getSelection();
+  if(!viewSelection()){ if(barSrc==='view') hideBar(); return; }
+  var rg=sel.getRangeAt(0), rects=rg.getClientRects();
+  var first=null;
+  for(var i=0;i<rects.length;i++){ if(rects[i].width>0){ first=rects[i]; break; } }
+  if(!first) first=rg.getBoundingClientRect();
+  var box=document.querySelector('.view__scroll').getBoundingClientRect();
+  if(first.bottom<box.top || first.top>box.bottom){ hideBar(); return; }
+  barSrc='view';
+  fbar.classList.add('on');
+  var w=fbar.offsetWidth, h=fbar.offsetHeight;
+  var one=true; for(var j=0;j<rects.length;j++){ if(rects[j].width>0 && Math.abs(rects[j].top-first.top)>2){ one=false; break; } }
+  var bb=rg.getBoundingClientRect();
+  var cx=one ? (bb.left+bb.right)/2 : first.left;
+  var left=Math.max(8, Math.min(window.innerWidth-w-8, cx-w/2));
+  var top=first.top-h-8;
+  // 손가락으로 고르면 위쪽에 휴대폰 기본 메뉴(복사 등)가 뜨므로 아래에 둔다
+  var coarse=window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+  if(coarse){
+    var last=first; for(var k=rects.length-1;k>=0;k--){ if(rects[k].width>0){ last=rects[k]; break; } }
+    top=last.bottom+12;
+    if(top+h>window.innerHeight-8) top=first.top-h-8;
+  }
+  if(top<8) top=first.bottom+8;
+  fbar.style.left=left+'px';
+  fbar.style.top=top+'px';
+}
+function toast(msg){
+  var t=document.getElementById('toast');
+  if(!t){
+    t=document.createElement('div'); t.id='toast';
+    t.style.cssText='position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;background:#111;color:#fff;'+
+      'font:500 12.5px/1.5 Pretendard,sans-serif;padding:10px 16px;max-width:calc(100% - 32px);pointer-events:none;transition:opacity .25s;opacity:0;';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity='0'; }, 2600);
+}
+var MK_TOK=['**','//','__','==','~~','%%','++','^^','##','!!','@@','$$'];
+var MK_GROUP=[0,0,0, 1,1,1, 1,1,1, 2,2,2];   // 같은 묶음끼리는 하나만 (형광펜끼리, 강조색끼리)
+function rowWrite(mp, sets){
+  var r=mp.r, n=mp.map.length, out='', open=[], byIdx={};
+  mp.map.forEach(function(si,k){ byIdx[si]=k; });
+  var W=[];
+  for(var k=0;k<n;k++){
+    var c=mp.raw[k], v=0;
+    for(var b=0;b<MK_TOK.length;b++){
+      if(!(sets[k]&(1<<b))) continue;
+      if(MK_TOK[b].charAt(0)===c) continue;   // 기호와 같은 글자(예: !!…!! 안의 !)는 감싸지 않는다
+      v|=(1<<b);
+    }
+    W.push(v);
+  }
+  var run=[];   // run[k][b]: k 부터 서식 b 가 몇 글자 이어지나
+  for(var k2=n-1;k2>=0;k2--){
+    run[k2]=[];
+    for(var b2=0;b2<MK_TOK.length;b2++)
+      run[k2][b2]=(W[k2]&(1<<b2)) ? 1+((k2+1<n && run[k2+1][b2]) ? run[k2+1][b2] : 0) : 0;
+  }
+  function closeTo(mask){   // mask 에 없는 서식이 나올 때까지만 남기고 닫는다
+    var keep=0; while(keep<open.length && (mask&(1<<open[keep]))) keep++;
+    for(var q=open.length-1;q>=keep;q--) out+=MK_TOK[open[q]];
+    open=open.slice(0,keep);
+  }
+  function openFor(k){
+    var have=0; open.forEach(function(b){ have|=(1<<b); });
+    var add=[];
+    for(var b=0;b<MK_TOK.length;b++) if((W[k]&(1<<b)) && !(have&(1<<b))) add.push(b);
+    add.sort(function(x,y){ return (run[k][y]-run[k][x]) || (x-y); });   // 오래 이어지는 것이 바깥
+    add.forEach(function(b){ out+=MK_TOK[b]; open.push(b); });
+  }
+  var end=r.from+r.raw.length;
+  for(var j=r.from;j<end;j++){
+    if(mp.dead[j]) continue;                              // 옛 서식 기호는 버리고 새로 쓴다
+    var ch=r.raw.charAt(j-r.from);
+    if(byIdx.hasOwnProperty(j)){ var kk=byIdx[j]; closeTo(W[kk]); openFor(kk); out+=ch; continue; }
+    // 화면에 안 나오는 글자(벗긴 따옴표·잘린 공백). 다음 글자까지 이어지는 서식만 안에 둔다
+    var nx=0; for(var q2=j+1;q2<end;q2++) if(byIdx.hasOwnProperty(q2)){ nx=W[byIdx[q2]]; break; }
+    closeTo(nx); out+=ch;
+  }
+  closeTo(0);
+  // 다시 읽어서 보이는 글자·서식이 의도와 같을 때만 쓴다 (원문에 원래 있던 ** 같은 글자와 엉키는 경우 대비)
+  var back=rowMap({raw:out, from:r.from, trim:r.trim, uq:r.uq}, null);
+  if(!back || back.plain!==mp.plain) return null;
+  for(var k3=0;k3<n;k3++) if(back.sets[k3]!==W[k3]) return null;
+  return out;
+}
+function viewApply(kind, m){
+  var segs=viewSelection(); if(!segs) return;
+  if(kind==='wrap' || kind==='clear'){
+    var bit=kind==='wrap' ? MK_TOK.indexOf(m) : -1;
+    var toggleOff=false;
+    if(bit>=0){   // 고른 글자가 이미 전부 그 서식이면 끈다
+      toggleOff=segs.every(function(g){
+        for(var k=g.ps;k<g.pe;k++){
+          if(MK_TOK[bit].charAt(0)===g.mp.raw[k]) continue;
+          if(!(g.mp.sets[k]&(1<<bit))) return false;
+        }
+        return true;
+      });
+    }
+    var order=segs.slice().sort(function(x,y){ return y.mp.r.from-x.mp.r.from; }), failed=false;   // 뒤 줄부터 고쳐야 앞 위치가 안 밀린다
+    order.forEach(function(g){
+      var sets=g.mp.sets.slice();
+      for(var k=g.ps;k<g.pe;k++){
+        if(kind==='clear'){ sets[k]=0; continue; }
+        if(toggleOff){ sets[k]&=~(1<<bit); continue; }
+        for(var b=0;b<MK_TOK.length;b++) if(b!==bit && MK_GROUP[b]===MK_GROUP[bit] && MK_GROUP[bit]>0) sets[k]&=~(1<<b);
+        sets[k]|=(1<<bit);
+      }
+      var r=g.mp.r, txt=rowWrite(g.mp, sets);
+      if(txt===null){ failed=true; return; }
+      src.setRangeText(txt, r.from, r.from+r.raw.length, 'preserve');
+    });
+    render(); save();
+    if(failed) toast('원문에 서식 기호와 같은 글자가 있어 일부 줄은 왼쪽에서 직접 고쳐 주세요');
+  } else if(kind==='quote'){
+    var lo=Math.min.apply(null, segs.map(function(g){ return g.s; })),
+        hi=Math.max.apply(null, segs.map(function(g){ return g.e; }));
+    toggleQuoteRange(lo, hi, true);
+  }
+  restoreView(segs);   // 보이는 글자는 그대로라 같은 자리를 다시 골라 둔다
+}
+(function(){
+  var vs=document.querySelector('.view__scroll');
+  ['mouseup','keyup','touchend'].forEach(function(ev){
+    vs.addEventListener(ev, function(){ requestAnimationFrame(placeViewBar); });
+  });
+  vs.addEventListener('scroll', function(){ if(barSrc==='view') placeViewBar(); });
+  // 휴대폰에서 손잡이로 범위를 늘리거나, Shift+화살표로 고를 때도 따라가게 (마우스로 끄는 중에는 기다린다)
+  var down=false, tm=null;
+  vs.addEventListener('mousedown', function(){ down=true; });
+  window.addEventListener('mouseup', function(){ down=false; });
+  document.addEventListener('selectionchange', function(){
+    var sel=window.getSelection();
+    var inPaper=sel && sel.rangeCount && !sel.isCollapsed && paper.contains(sel.getRangeAt(0).commonAncestorContainer);
+    if(!inPaper){ if(barSrc==='view' && fbar.classList.contains('on')) hideBar(); return; }
+    if(down) return;
+    clearTimeout(tm); tm=setTimeout(placeViewBar, 180);
+  });
+})();
 
 /* ===================== 인물 ===================== */
 var CHAR_KEY='geuk-chars-v1';
@@ -1049,8 +1317,8 @@ $('quoteAuto').addEventListener('change', function(){ render(); save(); });
 
 // 고른 줄 앞에 > 를 붙이거나 뗀다
 $('btnQuote').addEventListener('mousedown', function(e){ e.preventDefault(); });
-$('btnQuote').addEventListener('click', function(){
-  var v=src.value, a=src.selectionStart, b=src.selectionEnd;
+function toggleQuoteRange(a, b, quiet){
+  var v=src.value;
   var ls=v.lastIndexOf('\n', a-1)+1;
   var le=v.indexOf('\n', b); if(le===-1) le=v.length;
   var lines=v.slice(ls,le).split('\n');
@@ -1059,10 +1327,14 @@ $('btnQuote').addEventListener('click', function(){
     if(l.trim()==='') return l;
     return on ? l.replace(/^(\s*)>\s?/,'$1') : l.replace(/^(\s*)/,'$1> ');
   }).join('\n');
-  src.focus();
+  if(!quiet) src.focus();
   src.setRangeText(out, ls, le, 'end');
-  src.setSelectionRange(ls, ls+out.length);
+  if(!quiet) src.setSelectionRange(ls, ls+out.length);
   render(); save();
+}
+$('btnQuote').addEventListener('click', function(){
+  if(viewOn()){ viewApply('quote'); return; }
+  toggleQuoteRange(src.selectionStart, src.selectionEnd, false);
 });
 
 /* ===================== 파싱 ===================== */
@@ -1088,17 +1360,25 @@ var MARKS=[
    앞이 줄 처음·띄어쓰기·여는 괄호면 여는 따옴표, 그 밖엔 닫는 따옴표.
    That's 같은 영어 축약도 닫는 쪽(’)이 맞는 모양이다 */
 var QO='(^|[\\s(\\[{\u300C\u300E\u201C\u2018\u2014\u2013-])';
-var RE_DQ_OPEN=new RegExp(QO+'"','g'), RE_SQ_OPEN=new RegExp(QO+"'",'g');
+var QMK='((?:\\*\\*|//|__|==|~~|%%|\\+\\+|\\^\\^|##|!!|@@|\\$\\$)*)';   // **"…" 처럼 서식 기호 뒤여도 여는 쪽
+var RE_DQ_OPEN=new RegExp(QO+QMK+'"','g'), RE_SQ_OPEN=new RegExp(QO+QMK+"'",'g');
 function smartq(s){
   return String(s)
-    .replace(RE_DQ_OPEN,'$1\u201C').replace(/"/g,'\u201D')
-    .replace(RE_SQ_OPEN,'$1\u2018').replace(/'/g,'\u2019');
+    .replace(RE_DQ_OPEN,'$1$2\u201C').replace(/"/g,'\u201D')
+    .replace(RE_SQ_OPEN,'$1$2\u2018').replace(/'/g,'\u2019');
 }
+/* 서식은 앞에서부터 차례로 찾는다. 찾은 자리는 끝날 때까지 \uE000(열기)·\uE001(닫기) 자리표시로 두었다가
+   마지막에 <span> 으로 바꾼다. 태그 안의 = 나 / 때문에 ==형광 **굵게** 형광== 같은 겹침이 깨지던 것을 막는다 */
+var PH_RE=/[\uE000\uE001\uE100-\uE10F]/g;
 function inline(s){
+  s=String(s).replace(PH_RE,'');
   if($('smartQ') && $('smartQ').checked) s=smartq(s);
   var t=esc(s);
-  MARKS.forEach(function(m){ t=t.replace(m[0],'<span class="'+m[1]+'">$1</span>'); });
-  return t;
+  MARKS.forEach(function(m, mi){
+    t=t.replace(m[0], function(_, x){ return '\uE000'+String.fromCharCode(0xE100+mi)+x+'\uE001'; });
+  });
+  return t.replace(/\uE000([\uE100-\uE10F])/g, function(_, c){ return '<span class="'+MARKS[c.charCodeAt(0)-0xE100][1]+'">'; })
+          .replace(/\uE001/g, '</span>');
 }
 /* 이름 칸 대사가 따옴표로 통째로 감싸여 있으면 벗긴다.
    "가."  →  가.          “가.” "나."  →  가. 나.
@@ -1116,14 +1396,19 @@ function unquote(s){
 function parse(text){
   var lines=String(text).replace(/\r\n/g,'\n').split('\n');
   var unq=$('quoteStrip') && $('quoteStrip').checked;
-  var out=[], prevKind=null, lastChar=null;
+  var out=[], prevKind=null, lastChar=null, at=0;
+  /* 미리보기에서 드래그한 글자를 원문 자리로 되돌리려고, 줄마다
+     raw: 원문에서 잘라 온 꼬리, from: 그 꼬리의 원문 위치,
+     trim: 앞뒤 공백을 잘랐는지, uq: 따옴표를 벗겼는지 를 남긴다 */
   lines.forEach(function(raw){
+    var ls=at; at+=raw.length+1;
     if(raw.trim()===''){ out.push({t:'gap'}); prevKind=null; lastChar=null; return; }
 
     var qm=raw.match(/^\s*>\s?([\s\S]*)$/);
     if(qm){
       var qb=qm[1].trim();
-      out.push({t:'q', text:qb, tr:/^[(（[［{]/.test(qb)});
+      out.push({t:'q', text:qb, tr:/^[(（[［{]/.test(qb),
+                raw:qm[1], from:ls+raw.length-qm[1].length, trim:true, uq:false});
       prevKind='q'; return;
     }
 
@@ -1131,7 +1416,8 @@ function parse(text){
     if(m){
       var key=m[1].trim(), c=charByKey(key);
       lastChar=c;
-      out.push({t:'say', name:c?c.name:key, text:unq?unquote(m[2]):m[2], tr:false, color:c?c.color:null});
+      out.push({t:'say', name:c?c.name:key, text:unq?unquote(m[2]):m[2], tr:false, color:c?c.color:null,
+                raw:m[2], from:ls+raw.length-m[2].length, trim:false, uq:!!unq});
       prevKind='say'; return;
     }
 
@@ -1140,9 +1426,10 @@ function parse(text){
     var body=raw.trim();
     var isTr=/^[(（[［{]/.test(body);
     if(prevKind==='say'){
-      out.push({t:'say', name:'', text:(unq&&!isTr)?unquote(body):body, tr:isTr, color:lastChar?lastChar.color:null});
+      out.push({t:'say', name:'', text:(unq&&!isTr)?unquote(body):body, tr:isTr, color:lastChar?lastChar.color:null,
+                raw:raw, from:ls, trim:true, uq:!!(unq&&!isTr)});
     } else {
-      out.push({t:'dir', text:body, tr:isTr});
+      out.push({t:'dir', text:body, tr:isTr, raw:raw, from:ls, trim:true, uq:false});
       prevKind='dir';
     }
   });
@@ -1150,8 +1437,11 @@ function parse(text){
   while(out.length && out[0].t==='gap') out.shift();
   return out;
 }
+var VIEW_ROWS=[];
 function build(){
   var rows=parse(src.value), tint=$('charTint').checked, html='';
+  rows.forEach(function(r,i){ r.i=i; });
+  VIEW_ROWS=rows;
   var dirCls=(segs.segDirInd==='col')?' col':'';
   var rowGap=+$('rowGap').value, sayGap=+$('sayGap').value,
       dirGap=+$('dirGap').value, paraGap=+$('paraGap').value;
@@ -1182,12 +1472,12 @@ function build(){
       else if(b.k==='dir' || prev==='dir') html+=sp(dirGap);
       else html+=sp(sayGap);
     }
-    if(b.k==='dir'){ html+='<div class="p-dir'+dirCls+(b.r.tr?' p-tr':'')+'">'+inline(b.r.text)+'</div>'; prev='dir'; return; }
+    if(b.k==='dir'){ html+='<div class="p-dir'+dirCls+(b.r.tr?' p-tr':'')+'" data-r="'+b.r.i+'">'+inline(b.r.text)+'</div>'; prev='dir'; return; }
 
     if(b.k==='q'){
       html+='<div class="p-q q-'+qPos+'"'+qStyle(null)+'>';
       b.lines.forEach(function(l,i){
-        html+='<div class="p-qln'+(l.tr?' p-tr':'')+'"'+(i?' style="margin-top:'+rowGap+'px"':'')+'>'+inline(l.text)+'</div>';
+        html+='<div class="p-qln'+(l.tr?' p-tr':'')+'" data-r="'+l.i+'"'+(i?' style="margin-top:'+rowGap+'px"':'')+'>'+inline(l.text)+'</div>';
       });
       html+='</div>';
       prev='say'; return;
@@ -1203,7 +1493,7 @@ function build(){
       var s=[];
       if(i) s.push('margin-top:'+rowGap+'px');
       if(tint && l.color && !l.tr) s.push('color:'+l.color);
-      html+='<div class="p-ln'+(l.tr?' p-tr':'')+'"'+(s.length?' style="'+s.join(';')+'"':'')+'>'+inline(l.text)+'</div>';
+      html+='<div class="p-ln'+(l.tr?' p-tr':'')+'" data-r="'+l.i+'"'+(s.length?' style="'+s.join(';')+'"':'')+'>'+inline(l.text)+'</div>';
     });
     html+='</div>';
     prev='say';
