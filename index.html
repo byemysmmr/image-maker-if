@@ -278,8 +278,12 @@
   #paper *{margin:0;padding:0;}
   #sheet{position:relative;z-index:1;}
   #paper.ratio{display:flex;flex-direction:column;justify-content:center;}
-  /* A5 는 책 한 쪽이라 글이 위에서부터 시작한다 (다른 비율은 가운데) */
+  /* A5 — 남는 세로 공간을 위 4 : 아래 6 으로 나눈다.
+     짧은 발췌는 가운데보다 살짝 위(눈이 가운데로 느끼는 자리)에 놓이고,
+     한 쪽을 꽉 채우면 남는 공간이 없어 그냥 위에서부터 시작한다 */
   #paper.ratio.book{justify-content:flex-start;}
+  #paper.ratio.book::before{content:"";flex:2 1 0;}
+  #paper.ratio.book::after{content:"";flex:3 1 0;}
 
   .p-title{display:block;font-family:var(--title-font,inherit);font-size:var(--title-size,32px);
     font-weight:700;color:var(--title-color,#1a1a1a);line-height:1.3;
@@ -458,6 +462,10 @@
           <button type="button" data-v="break-all" aria-pressed="false">글자 단위</button>
         </div>
       </div>
+      <label class="sw" style="margin-top:14px">
+        <span class="sw__t"><b>둥근 따옴표</b><span><code>"</code> <code>'</code> 를 <code>“ ”</code> <code>‘ ’</code> 로 바꿔 보여 줍니다. 적어 둔 글은 그대로예요</span></span>
+        <input type="checkbox" id="smartQ">
+      </label>
       </div>
       <div class="tabp" id="t-lay" role="tabpanel" hidden>
         <div class="grp">
@@ -521,6 +529,10 @@
       <label class="sw" style="margin-top:14px">
         <span class="sw__t"><b>정렬선 보기</b><span>편집창에서만 확인 가능하며 저장 이미지에선 뜨지 않습니다</span></span>
         <input type="checkbox" id="guide" checked>
+      </label>
+      <label class="sw" style="margin-top:10px">
+        <span class="sw__t"><b>대사 따옴표 빼기</b><span><code>이름 | "대사"</code> 처럼 통째로 감싼 따옴표만 화면에서 뺍니다. 적어 둔 글은 그대로예요</span></span>
+        <input type="checkbox" id="quoteStrip" checked>
       </label>
         </div>
         <details class="more">
@@ -1072,13 +1084,38 @@ var MARKS=[
   [/\+\+([^+]+?)\+\+/g,'p-hb1'], [/\^\^([^^]+?)\^\^/g,'p-hb2'], [/##([^#]+?)##/g,'p-hb3'],
   [/!!([^!]+?)!!/g,'p-em1'], [/@@([^@]+?)@@/g,'p-em2'], [/\$\$([^$]+?)\$\$/g,'p-em3']
 ];
+/* 곧은 따옴표 → 둥근 따옴표
+   앞이 줄 처음·띄어쓰기·여는 괄호면 여는 따옴표, 그 밖엔 닫는 따옴표.
+   That's 같은 영어 축약도 닫는 쪽(’)이 맞는 모양이다 */
+var QO='(^|[\\s(\\[{\u300C\u300E\u201C\u2018\u2014\u2013-])';
+var RE_DQ_OPEN=new RegExp(QO+'"','g'), RE_SQ_OPEN=new RegExp(QO+"'",'g');
+function smartq(s){
+  return String(s)
+    .replace(RE_DQ_OPEN,'$1\u201C').replace(/"/g,'\u201D')
+    .replace(RE_SQ_OPEN,'$1\u2018').replace(/'/g,'\u2019');
+}
 function inline(s){
+  if($('smartQ') && $('smartQ').checked) s=smartq(s);
   var t=esc(s);
   MARKS.forEach(function(m){ t=t.replace(m[0],'<span class="'+m[1]+'">$1</span>'); });
   return t;
 }
+/* 이름 칸 대사가 따옴표로 통째로 감싸여 있으면 벗긴다.
+   "가."  →  가.          “가.” "나."  →  가. 나.
+   "가." 그가 말했다.  →  그대로 (끝이 따옴표가 아니므로) */
+var Q_OPEN='"\u201C\u300C\u300E', Q_CLOSE='"\u201D\u300D\u300F';
+function unquote(s){
+  var t=String(s).trim();
+  if(t.length<2) return s;
+  if(Q_OPEN.indexOf(t.charAt(0))<0 || Q_CLOSE.indexOf(t.charAt(t.length-1))<0) return s;
+  t=t.slice(1,-1);
+  // 문장마다 따로 감싼 경우 사이의 닫고-여는 따옴표를 한 칸 띄어쓰기로
+  t=t.replace(/["\u201D\u300D\u300F]\s+["\u201C\u300C\u300E]/g,' ');
+  return t.trim();
+}
 function parse(text){
   var lines=String(text).replace(/\r\n/g,'\n').split('\n');
+  var unq=$('quoteStrip') && $('quoteStrip').checked;
   var out=[], prevKind=null, lastChar=null;
   lines.forEach(function(raw){
     if(raw.trim()===''){ out.push({t:'gap'}); prevKind=null; lastChar=null; return; }
@@ -1094,7 +1131,7 @@ function parse(text){
     if(m){
       var key=m[1].trim(), c=charByKey(key);
       lastChar=c;
-      out.push({t:'say', name:c?c.name:key, text:m[2], tr:false, color:c?c.color:null});
+      out.push({t:'say', name:c?c.name:key, text:unq?unquote(m[2]):m[2], tr:false, color:c?c.color:null});
       prevKind='say'; return;
     }
 
@@ -1103,7 +1140,7 @@ function parse(text){
     var body=raw.trim();
     var isTr=/^[(（[［{]/.test(body);
     if(prevKind==='say'){
-      out.push({t:'say', name:'', text:body, tr:isTr, color:lastChar?lastChar.color:null});
+      out.push({t:'say', name:'', text:(unq&&!isTr)?unquote(body):body, tr:isTr, color:lastChar?lastChar.color:null});
     } else {
       out.push({t:'dir', text:body, tr:isTr});
       prevKind='dir';
@@ -1266,6 +1303,8 @@ function drawGuide(){
   paper.appendChild(g);
 }
 $('guide').addEventListener('change', function(){ render(); save(); });
+$('quoteStrip').addEventListener('change', function(){ render(); save(); });
+$('smartQ').addEventListener('change', function(){ render(); save(); });
 
 /* ===================== 탭 ===================== */
 var tabs=[].slice.call(document.querySelectorAll('.tab'));
@@ -1442,7 +1481,8 @@ var loading=false;
 function grab(ids){
   var v={}; ids.forEach(function(id){ var e=$(id); if(e) v[id]=e.value; });
   return { v:v, segs:JSON.parse(JSON.stringify(segs)),
-           guide:$('guide').checked, charTint:$('charTint').checked, quoteChar:$('quoteChar').checked, quoteAuto:$('quoteAuto').checked };
+           guide:$('guide').checked, charTint:$('charTint').checked, quoteChar:$('quoteChar').checked, quoteAuto:$('quoteAuto').checked,
+           quoteStrip:$('quoteStrip').checked, smartQ:$('smartQ').checked };
 }
 function apply(d, ids){
   loading=true;
@@ -1453,6 +1493,8 @@ function apply(d, ids){
     if(typeof d.charTint==='boolean') $('charTint').checked=d.charTint;
     if(typeof d.quoteChar==='boolean') $('quoteChar').checked=d.quoteChar;
     if(typeof d.quoteAuto==='boolean') $('quoteAuto').checked=d.quoteAuto;
+    if(typeof d.quoteStrip==='boolean') $('quoteStrip').checked=d.quoteStrip;
+    if(typeof d.smartQ==='boolean') $('smartQ').checked=d.smartQ;
     if(segs.segQuote!=='left' && segs.segQuote!=='right') segs.segQuote='left';
     Object.keys(segs).forEach(function(id){
       var seg=$(id); if(!seg) return;
@@ -1493,7 +1535,7 @@ var FIXED_PRESETS=[
   segs:{ segNameCol:'auto', segNameAlign:'left', segNameWeight:'400',
          segAlign:'justify', segWb:'break-all', segDirInd:'none',
          segQuote:'left', segFit:'ratio', segRatio:'148:210', segScale:'2' },
-  guide:true, charTint:false, quoteChar:false, quoteAuto:false } },
+  guide:true, charTint:false, quoteChar:false, quoteAuto:false, quoteStrip:true, smartQ:false } },
 
 { name:'대본', data:{
   v:{ font:'"Pretendard",sans-serif', size:'18', lh:'18', ls:'-1.3', stretch:'96',
@@ -1507,7 +1549,22 @@ var FIXED_PRESETS=[
   segs:{ segNameCol:'auto', segNameAlign:'left', segNameWeight:'700',
          segAlign:'left', segWb:'keep-all', segDirInd:'none',
          segQuote:'left', segFit:'auto', segRatio:'4:5', segScale:'2' },
-  guide:true, charTint:false, quoteChar:false, quoteAuto:false } }
+  guide:true, charTint:false, quoteChar:false, quoteAuto:false, quoteStrip:true, smartQ:false } },
+
+/* 자주 쓰는 설정 그대로 — 빈 줄만 18 → 8, 둥근 따옴표 켬 */
+{ name:'산문', data:{
+  v:{ font:'"Pretendard",sans-serif', size:'18', lh:'18', ls:'-1.3', stretch:'96',
+      rowGap:'0', sayGap:'0', dirGap:'0', paraGap:'8', colGap:'28',
+      nameW:'7', dirInd:'20', quoteW:'3', quoteGap:'14',
+      pw:'800', padX:'150', padY:'50', ts:'32', tg:'28', hlBand:'55',
+      cBg:'#ffffff', cBgT:'#ffffff', cFg:'#1a1a1a', cFgT:'#1a1a1a',
+      cName:'#1a1a1a', cNameT:'#1a1a1a', cTr:'#666666', cTrT:'#666666',
+      cDir:'#1a1a1a', cDirT:'#1a1a1a', cTitle:'#1a1a1a', cTitleT:'#1a1a1a',
+      cQuote:'#c8cfc0', cQuoteT:'#c8cfc0', cQInk:'#1a1a1a', cQInkT:'#1a1a1a' },
+  segs:{ segNameCol:'auto', segNameAlign:'left', segNameWeight:'700',
+         segAlign:'justify', segWb:'break-all', segDirInd:'first',
+         segQuote:'left', segFit:'auto', segRatio:'4:5', segScale:'2' },
+  guide:true, charTint:false, quoteChar:false, quoteAuto:false, quoteStrip:true, smartQ:true } }
 ];
 function renderFixed(){
   var wrap=$('preFixed'); if(!wrap) return;
